@@ -18,6 +18,15 @@ public class GameManager : MonoBehaviour
   [SerializeField] private int overdriveStreakRequired = 15;
   [SerializeField] private float overdriveDuration = 6f;
 
+  [Header("Pause UI")]
+  [Tooltip("Panel modal de pausa con botones Reanudar, Reiniciar y Menú")]
+  [SerializeField] private GameObject pausePanel;
+  [Tooltip("Botón de pausa de la esquina superior")]
+  [SerializeField] private GameObject pauseButton;
+
+  private bool isPaused = false;
+  public bool IsPaused => isPaused;
+
   [Header("Overdrive Visual FX")]
   [Tooltip("Overlay a pantalla completa para el modo Overdrive (se auto-genera si está vacío)")]
   [SerializeField] private CanvasGroup overdriveOverlay;
@@ -77,6 +86,10 @@ public class GameManager : MonoBehaviour
     if (comboText != null) comboOriginalScale = comboText.transform.localScale;
 
     InitializeOverdriveOverlay();
+
+    isPaused = false;
+    if (pausePanel != null) pausePanel.SetActive(false);
+    if (pauseButton != null) pauseButton.SetActive(true);
 
     UpdateScoreUI();
     UpdateComboUI();
@@ -293,6 +306,36 @@ public class GameManager : MonoBehaviour
     }
   }
 
+  #region Pause System
+  public void PauseGame()
+  {
+    if (isGameOver) return;
+
+    isPaused = true;
+    Time.timeScale = 0f;
+
+    if (pausePanel != null) pausePanel.SetActive(true);
+    if (pauseButton != null) pauseButton.SetActive(false);
+  }
+
+  public void ResumeGame()
+  {
+    if (isGameOver) return;
+
+    isPaused = false;
+    Time.timeScale = 1f;
+
+    if (pausePanel != null) pausePanel.SetActive(false);
+    if (pauseButton != null) pauseButton.SetActive(true);
+  }
+
+  public void TogglePause()
+  {
+    if (isPaused) ResumeGame();
+    else PauseGame();
+  }
+  #endregion
+
   public void TriggerGameOver()
   {
     if (isGameOver) return;
@@ -301,6 +344,11 @@ public class GameManager : MonoBehaviour
     if (isOverdriveActive) return;
 
     isGameOver = true;
+    isPaused = false;
+
+    // Ocultar botón y panel de pausa si estaban activos
+    if (pauseButton != null) pauseButton.SetActive(false);
+    if (pausePanel != null) pausePanel.SetActive(false);
 
     // Apagar overlay si estaba encendido
     if (overdriveOverlay != null) overdriveOverlay.alpha = 0f;
@@ -324,6 +372,7 @@ public class GameManager : MonoBehaviour
 
   public void RestartGame()
   {
+    isPaused = false;
     Time.timeScale = 1f;
     SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
   }
@@ -364,6 +413,7 @@ public class GameManager : MonoBehaviour
 
   public void GoToMainMenu()
   {
+    isPaused = false;
     Time.timeScale = 1f; // Siempre restaurar el tiempo antes de cambiar de escena
     SceneManager.LoadScene("MainMenu");
   }

@@ -21,6 +21,27 @@ public class InputHandler : MonoBehaviour
 
   void Update()
   {
+    // Atajo de teclado para pausar/reanudar en PC/Editor (Escape o P)
+#if UNITY_EDITOR || UNITY_STANDALONE
+    var keyboard = Keyboard.current;
+    if (keyboard != null)
+    {
+      if (keyboard.escapeKey.wasPressedThisFrame || keyboard.pKey.wasPressedThisFrame)
+      {
+        if (GameManager.Instance != null)
+        {
+          GameManager.Instance.TogglePause();
+        }
+      }
+    }
+#endif
+
+    // Si el juego terminó o está pausado, no procesar controles de naves
+    if (GameManager.Instance != null && (GameManager.Instance.IsGameOver || GameManager.Instance.IsPaused))
+    {
+      return;
+    }
+
     // 1. Manejo multitáctil en móvil
     if (Touch.activeTouches.Count > 0)
     {
@@ -50,7 +71,7 @@ public class InputHandler : MonoBehaviour
 
     // 2. Teclado en Editor y builds de Escritorio con New Input System
 #if UNITY_EDITOR || UNITY_STANDALONE
-        HandleKeyboardTesting();
+    HandleKeyboardTesting();
 #endif
   }
 
