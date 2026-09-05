@@ -16,6 +16,10 @@ public class BlockSpawner : MonoBehaviour
   [SerializeField] private float initialSpawnRate = 1.1f;
   [SerializeField] private float initialBlockSpeed = 4.5f;
 
+  [Header("Power-Ups")]
+  [Tooltip("Probabilidad (0 a 1) de generar un bloque especial Power-Up en vez de uno normal")]
+  [SerializeField] [Range(0f, 0.3f)] private float powerUpSpawnChance = 0.08f;
+
   [Header("Límites de Dificultad")]
   [SerializeField] private float minSpawnRate = 0.45f;
   [SerializeField] private float maxBlockSpeed = 10f;
@@ -61,42 +65,56 @@ public class BlockSpawner : MonoBehaviour
     newBlock.transform.position = spawnPos;
     newBlock.transform.rotation = Quaternion.identity;
 
-    GameColor selectedColor;
+    var collectible = newBlock.GetComponent<CollectibleBlock>();
 
-    // Si estamos en Overdrive, garantiza el 100% de bloques válidos
+    // Si estamos en Overdrive, garantiza el 100% de bloques válidos normales
     if (GameManager.Instance != null && GameManager.Instance.IsOverdriveActive)
     {
-      selectedColor = (laneX < 0) ? GameColor.Red : GameColor.Blue;
+      GameColor overdriveColor = (laneX < 0) ? GameColor.Red : GameColor.Blue;
+      collectible.Setup(overdriveColor, currentBlockSpeed, CollectibleBlock.BlockType.Normal);
+      return;
     }
-    else
+
+    // Probabilidad de generar un bloque especial (Power-Up)
+    // Se evita generar power-ups si ya hay un Slow-Mo activo para balance y ritmo de juego
+    bool canSpawnPowerUp = PowerUpManager.Instance == null || !PowerUpManager.Instance.IsSlowMoActive;
+    if (canSpawnPowerUp && Random.value < powerUpSpawnChance)
     {
-      // Lógica estándar con obstáculos (cero reservas GC)
-      if (laneX < 0)
+      CollectibleBlock.BlockType pType = (Random.value < 0.5f)
+        ? CollectibleBlock.BlockType.Bomb
+        : CollectibleBlock.BlockType.SlowMotion;
+
+      collectible.Setup(GameColor.Yellow, currentBlockSpeed, pType);
+      return;
+    }
+
+    // Lógica estándar con obstáculos (cero reservas GC)
+    GameColor selectedColor;
+    if (laneX < 0)
+    {
+      float roll = Random.value;
+      if (roll < 0.5f)
       {
-        float roll = Random.value;
-        if (roll < 0.5f)
-        {
-          selectedColor = GameColor.Red;
-        }
-        else
-        {
-          selectedColor = LeftObstacles[Random.Range(0, LeftObstacles.Length)];
-        }
+        selectedColor = GameColor.Red;
       }
       else
       {
-        float roll = Random.value;
-        if (roll < 0.5f)
-        {
-          selectedColor = GameColor.Blue;
-        }
-        else
-        {
-          selectedColor = RightObstacles[Random.Range(0, RightObstacles.Length)];
-        }
+        selectedColor = LeftObstacles[Random.Range(0, LeftObstacles.Length)];
+      }
+    }
+    else
+    {
+      float roll = Random.value;
+      if (roll < 0.5f)
+      {
+        selectedColor = GameColor.Blue;
+      }
+      else
+      {
+        selectedColor = RightObstacles[Random.Range(0, RightObstacles.Length)];
       }
     }
 
-    newBlock.GetComponent<CollectibleBlock>().Setup(selectedColor, currentBlockSpeed);
+    collectible.Setup(selectedColor, currentBlockSpeed, CollectibleBlock.BlockType.Normal);
   }
 }

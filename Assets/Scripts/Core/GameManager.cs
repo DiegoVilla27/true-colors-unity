@@ -80,6 +80,11 @@ public class GameManager : MonoBehaviour
       gameObject.AddComponent<OverdriveController>();
     }
 
+    if (GetComponent<PowerUpManager>() == null)
+    {
+      gameObject.AddComponent<PowerUpManager>();
+    }
+
     var hud = GetComponent<GameHUD>() ?? gameObject.AddComponent<GameHUD>();
     hud.Initialize(scoreText, comboText, highScoreText, finalScoreText, gameOverPanel, pausePanel, pauseButton);
 

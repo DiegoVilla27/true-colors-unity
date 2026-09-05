@@ -3,6 +3,13 @@ using UnityEngine;
 
 public class CollectibleBlock : MonoBehaviour
 {
+  public enum BlockType
+  {
+    Normal,
+    Bomb,
+    SlowMotion
+  }
+
   #region Optimization Registries & Static Colors
   public static readonly List<CollectibleBlock> ActiveBlocks = new List<CollectibleBlock>(32);
 
@@ -10,6 +17,8 @@ public class CollectibleBlock : MonoBehaviour
   private static readonly Color ColorBlue = new Color(0.2f, 0.5f, 1f);
   private static readonly Color ColorYellow = new Color(1f, 0.9f, 0.2f);
   private static readonly Color ColorGreen = new Color(0.2f, 0.9f, 0.3f);
+  private static readonly Color ColorBomb = new Color(0.88f, 0.25f, 0.98f); // Neon Magenta (#E040FB)
+  private static readonly Color ColorSlowMo = new Color(0.0f, 0.9f, 1.0f);   // Electric Cyan (#00E5FF)
 
   public static Color GetColorForType(GameColor color)
   {
@@ -24,6 +33,7 @@ public class CollectibleBlock : MonoBehaviour
   }
   #endregion
 
+  public BlockType blockType = BlockType.Normal;
   public GameColor blockColor;
   public float fallSpeed = 5f;
 
@@ -47,23 +57,43 @@ public class CollectibleBlock : MonoBehaviour
     ActiveBlocks.Remove(this);
   }
 
-  public void Setup(GameColor newColor, float speed)
+  public void Setup(GameColor newColor, float speed, BlockType type = BlockType.Normal)
   {
+    blockType = type;
     blockColor = newColor;
     fallSpeed = speed;
 
     if (spriteRenderer == null)
       spriteRenderer = GetComponent<SpriteRenderer>();
 
-    spriteRenderer.color = GetColorForType(blockColor);
+    if (blockType == BlockType.Bomb)
+    {
+      spriteRenderer.color = ColorBomb;
+    }
+    else if (blockType == BlockType.SlowMotion)
+    {
+      spriteRenderer.color = ColorSlowMo;
+    }
+    else
+    {
+      spriteRenderer.color = GetColorForType(blockColor);
+    }
   }
 
   void Update()
   {
-    transform.Translate(Vector3.down * fallSpeed * Time.deltaTime);
+    float speedMultiplier = PowerUpManager.Instance != null ? PowerUpManager.Instance.GlobalSpeedMultiplier : 1f;
+    transform.Translate(Vector3.down * (fallSpeed * speedMultiplier) * Time.deltaTime);
 
     if (transform.position.y < -5.5f)
     {
+      // Los power-ups nunca causan Game Over al salir de pantalla
+      if (blockType != BlockType.Normal)
+      {
+        Recycle();
+        return;
+      }
+
       bool isLeftSide = transform.position.x < 0;
 
       if (isLeftSide && blockColor == GameColor.Red)
@@ -87,6 +117,32 @@ public class CollectibleBlock : MonoBehaviour
   {
     if (other.TryGetComponent<ShipTarget>(out var ship))
     {
+      // Recolección universal de Power-Ups (cualquier nave puede recogerlos con éxito)
+      if (blockType == BlockType.Bomb)
+      {
+        SpawnParticles();
+        HapticFeedback.VibrateCollect();
+        if (PowerUpManager.Instance != null)
+        {
+          PowerUpManager.Instance.ActivateBomb();
+        }
+        Recycle();
+        return;
+      }
+
+      if (blockType == BlockType.SlowMotion)
+      {
+        SpawnParticles();
+        HapticFeedback.VibrateCollect();
+        if (PowerUpManager.Instance != null)
+        {
+          PowerUpManager.Instance.ActivateSlowMotion();
+        }
+        Recycle();
+        return;
+      }
+
+      // Bloques normales
       if (ship.targetColor == this.blockColor)
       {
         SpawnParticles();
@@ -100,6 +156,26 @@ public class CollectibleBlock : MonoBehaviour
 
       Recycle();
     }
+  }
+
+  /// <summary>
+  /// Determina si este bloque es un obstáculo peligroso según el carril donde se encuentra.
+  /// </summary>
+  public bool IsHazard()
+  {
+    if (blockType != BlockType.Normal) return false;
+
+    bool isLeftSide = transform.position.x < 0;
+    return isLeftSide ? (blockColor != GameColor.Red) : (blockColor != GameColor.Blue);
+  }
+
+  /// <summary>
+  /// Limpia y recicla este bloque con partículas cuando la Bomba es activada.
+  /// </summary>
+  public void WipeByBomb()
+  {
+    SpawnParticles();
+    Recycle();
   }
 
   private void TriggerMissGameOver()
@@ -143,6 +219,7 @@ public class CollectibleBlock : MonoBehaviour
 
   public void ForceColor(GameColor newColor)
   {
+    blockType = BlockType.Normal;
     blockColor = newColor;
 
     if (spriteRenderer == null)

@@ -99,6 +99,12 @@ public class GameHUD : MonoBehaviour
       OverdriveController.Instance.OnOverdriveEnded += HandleOverdriveEnded;
     }
 
+    if (PowerUpManager.Instance != null)
+    {
+      PowerUpManager.Instance.OnPowerUpActivated += HandlePowerUpActivated;
+      PowerUpManager.Instance.OnPowerUpEnded += HandlePowerUpEnded;
+    }
+
     if (GameManager.Instance != null)
     {
       GameManager.Instance.OnStateChanged += HandleGameStateChanged;
@@ -118,6 +124,12 @@ public class GameHUD : MonoBehaviour
     {
       OverdriveController.Instance.OnOverdriveStarted -= HandleOverdriveStarted;
       OverdriveController.Instance.OnOverdriveEnded -= HandleOverdriveEnded;
+    }
+
+    if (PowerUpManager.Instance != null)
+    {
+      PowerUpManager.Instance.OnPowerUpActivated -= HandlePowerUpActivated;
+      PowerUpManager.Instance.OnPowerUpEnded -= HandlePowerUpEnded;
     }
 
     if (GameManager.Instance != null)
@@ -178,6 +190,40 @@ public class GameHUD : MonoBehaviour
   private void HandleOverdriveEnded()
   {
     if (comboText != null)
+    {
+      comboText.SetText(string.Empty);
+    }
+  }
+
+  private void HandlePowerUpActivated(PowerUpType type)
+  {
+    if (comboText == null) return;
+
+    if (type == PowerUpType.Bomb)
+    {
+      comboText.SetText("<color=#E040FB>💣 SCREEN WIPE! +25</color>");
+      TriggerComboPunch();
+    }
+    else if (type == PowerUpType.SlowMotion)
+    {
+      comboText.SetText("<color=#00E5FF>⏱️ SLOW-MO! 3s</color>");
+      TriggerComboPunch();
+    }
+  }
+
+  private void HandlePowerUpEnded(PowerUpType type)
+  {
+    if (comboText == null) return;
+
+    if (OverdriveController.Instance != null && OverdriveController.Instance.IsOverdriveActive)
+    {
+      comboText.SetText("<color=#FFD700>🔥 OVERDRIVE x5! 🔥</color>");
+    }
+    else if (ScoreManager.Instance != null && ScoreManager.Instance.ScoreMultiplier > 1)
+    {
+      comboText.SetText("STREAK {0} (x{1})", (float)ScoreManager.Instance.CurrentStreak, (float)ScoreManager.Instance.ScoreMultiplier);
+    }
+    else
     {
       comboText.SetText(string.Empty);
     }
