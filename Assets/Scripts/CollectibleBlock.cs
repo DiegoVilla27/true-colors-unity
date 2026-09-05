@@ -1,7 +1,29 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CollectibleBlock : MonoBehaviour
 {
+  #region Optimization Registries & Static Colors
+  public static readonly List<CollectibleBlock> ActiveBlocks = new List<CollectibleBlock>(32);
+
+  private static readonly Color ColorRed = new Color(1f, 0.2f, 0.2f);
+  private static readonly Color ColorBlue = new Color(0.2f, 0.5f, 1f);
+  private static readonly Color ColorYellow = new Color(1f, 0.9f, 0.2f);
+  private static readonly Color ColorGreen = new Color(0.2f, 0.9f, 0.3f);
+
+  public static Color GetColorForType(GameColor color)
+  {
+    switch (color)
+    {
+      case GameColor.Red: return ColorRed;
+      case GameColor.Blue: return ColorBlue;
+      case GameColor.Yellow: return ColorYellow;
+      case GameColor.Green: return ColorGreen;
+      default: return Color.white;
+    }
+  }
+  #endregion
+
   public GameColor blockColor;
   public float fallSpeed = 5f;
 
@@ -15,26 +37,25 @@ public class CollectibleBlock : MonoBehaviour
     spriteRenderer = GetComponent<SpriteRenderer>();
   }
 
+  void OnEnable()
+  {
+    ActiveBlocks.Add(this);
+  }
+
+  void OnDisable()
+  {
+    ActiveBlocks.Remove(this);
+  }
+
   public void Setup(GameColor newColor, float speed)
   {
     blockColor = newColor;
     fallSpeed = speed;
 
-    switch (blockColor)
-    {
-      case GameColor.Red:
-        spriteRenderer.color = new Color(1f, 0.2f, 0.2f);
-        break;
-      case GameColor.Blue:
-        spriteRenderer.color = new Color(0.2f, 0.5f, 1f);
-        break;
-      case GameColor.Yellow:
-        spriteRenderer.color = new Color(1f, 0.9f, 0.2f);
-        break;
-      case GameColor.Green:
-        spriteRenderer.color = new Color(0.2f, 0.9f, 0.3f);
-        break;
-    }
+    if (spriteRenderer == null)
+      spriteRenderer = GetComponent<SpriteRenderer>();
+
+    spriteRenderer.color = GetColorForType(blockColor);
   }
 
   void Update()
@@ -106,9 +127,18 @@ public class CollectibleBlock : MonoBehaviour
   {
     if (particlePrefab == null) return;
 
-    GameObject fx = Instantiate(particlePrefab, transform.position, Quaternion.identity);
-    var mainModule = fx.GetComponent<ParticleSystem>().main;
-    mainModule.startColor = spriteRenderer.color;
+    Color pColor = spriteRenderer != null ? spriteRenderer.color : ColorRed;
+
+    if (BlockPool.Instance != null)
+    {
+      BlockPool.Instance.SpawnCollectParticles(particlePrefab, transform.position, pColor);
+    }
+    else
+    {
+      GameObject fx = Instantiate(particlePrefab, transform.position, Quaternion.identity);
+      var mainModule = fx.GetComponent<ParticleSystem>().main;
+      mainModule.startColor = pColor;
+    }
   }
 
   public void ForceColor(GameColor newColor)
@@ -118,20 +148,6 @@ public class CollectibleBlock : MonoBehaviour
     if (spriteRenderer == null)
       spriteRenderer = GetComponent<SpriteRenderer>();
 
-    switch (blockColor)
-    {
-      case GameColor.Red:
-        spriteRenderer.color = new Color(1f, 0.2f, 0.2f);
-        break;
-      case GameColor.Blue:
-        spriteRenderer.color = new Color(0.2f, 0.5f, 1f);
-        break;
-      case GameColor.Yellow:
-        spriteRenderer.color = new Color(1f, 0.9f, 0.2f);
-        break;
-      case GameColor.Green:
-        spriteRenderer.color = new Color(0.2f, 0.9f, 0.3f);
-        break;
-    }
+    spriteRenderer.color = GetColorForType(blockColor);
   }
 }

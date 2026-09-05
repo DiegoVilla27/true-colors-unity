@@ -55,4 +55,47 @@ public class BlockPool : MonoBehaviour
     block.SetActive(false);
     pool.Enqueue(block);
   }
+
+  #region Particle Pooling
+  private readonly Queue<ParticleSystem> particlePool = new Queue<ParticleSystem>();
+
+  public void SpawnCollectParticles(GameObject prefab, Vector3 position, Color color)
+  {
+    if (prefab == null) return;
+
+    ParticleSystem ps = null;
+    while (particlePool.Count > 0)
+    {
+      ps = particlePool.Dequeue();
+      if (ps != null) break;
+    }
+
+    if (ps == null)
+    {
+      GameObject obj = Instantiate(prefab, transform);
+      ps = obj.GetComponent<ParticleSystem>();
+      var main = ps.main;
+      main.stopAction = ParticleSystemStopAction.None;
+    }
+
+    ps.transform.position = position;
+    var mainModule = ps.main;
+    mainModule.startColor = color;
+    ps.gameObject.SetActive(true);
+    ps.Clear();
+    ps.Play();
+
+    StartCoroutine(ReturnParticleAfterDelay(ps, 0.35f));
+  }
+
+  private System.Collections.IEnumerator ReturnParticleAfterDelay(ParticleSystem ps, float delay)
+  {
+    yield return new WaitForSeconds(delay);
+    if (ps != null)
+    {
+      ps.gameObject.SetActive(false);
+      particlePool.Enqueue(ps);
+    }
+  }
+  #endregion
 }

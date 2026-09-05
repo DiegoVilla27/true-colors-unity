@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class BlockSpawner : MonoBehaviour
@@ -7,7 +6,11 @@ public class BlockSpawner : MonoBehaviour
   [SerializeField] private GameObject blockPrefab;
 
   [Header("Configuración de Carriles")]
-  private float[] allLanes = new float[] { -2.1f, -1.4f, -0.7f, 0.7f, 1.4f, 2.1f };
+  private static readonly float[] AllLanes = new float[] { -2.1f, -1.4f, -0.7f, 0.7f, 1.4f, 2.1f };
+
+  // Arrays estáticos reutilizables para evitar reservas en Heap por cada spawn
+  private static readonly GameColor[] LeftObstacles = new GameColor[] { GameColor.Yellow, GameColor.Green, GameColor.Blue };
+  private static readonly GameColor[] RightObstacles = new GameColor[] { GameColor.Yellow, GameColor.Green, GameColor.Red };
 
   [Header("Dificultad Inicial")]
   [SerializeField] private float initialSpawnRate = 1.1f;
@@ -22,11 +25,9 @@ public class BlockSpawner : MonoBehaviour
   private float currentBlockSpeed;
   private float timer = 0f;
   private float gameTime = 0f;
-  private Array colorValues;
 
   void Start()
   {
-    colorValues = Enum.GetValues(typeof(GameColor));
     currentSpawnRate = initialSpawnRate;
     currentBlockSpeed = initialBlockSpeed;
   }
@@ -53,7 +54,7 @@ public class BlockSpawner : MonoBehaviour
 
   private void SpawnRandomBlock()
   {
-    float laneX = allLanes[UnityEngine.Random.Range(0, allLanes.Length)];
+    float laneX = AllLanes[Random.Range(0, AllLanes.Length)];
     Vector3 spawnPos = new Vector3(laneX, 6f, 0f);
 
     GameObject newBlock = BlockPool.Instance.GetBlock();
@@ -69,31 +70,29 @@ public class BlockSpawner : MonoBehaviour
     }
     else
     {
-      // Lógica estándar con obstáculos
+      // Lógica estándar con obstáculos (cero reservas GC)
       if (laneX < 0)
       {
-        float roll = UnityEngine.Random.value;
+        float roll = Random.value;
         if (roll < 0.5f)
         {
           selectedColor = GameColor.Red;
         }
         else
         {
-          GameColor[] obstacles = { GameColor.Yellow, GameColor.Green, GameColor.Blue };
-          selectedColor = obstacles[UnityEngine.Random.Range(0, obstacles.Length)];
+          selectedColor = LeftObstacles[Random.Range(0, LeftObstacles.Length)];
         }
       }
       else
       {
-        float roll = UnityEngine.Random.value;
+        float roll = Random.value;
         if (roll < 0.5f)
         {
           selectedColor = GameColor.Blue;
         }
         else
         {
-          GameColor[] obstacles = { GameColor.Yellow, GameColor.Green, GameColor.Red };
-          selectedColor = obstacles[UnityEngine.Random.Range(0, obstacles.Length)];
+          selectedColor = RightObstacles[Random.Range(0, RightObstacles.Length)];
         }
       }
     }

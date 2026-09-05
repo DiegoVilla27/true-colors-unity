@@ -9,6 +9,12 @@ public class ShipController : MonoBehaviour
     [Header("Movimiento")]
     [SerializeField] private float moveSpeed = 15f;
 
+    [Header("Inclinación Dinámica (Banking / Tilt)")]
+    [Tooltip("Ángulo máximo de inclinación en grados al desplazarse de carril")]
+    [SerializeField] private float maxTiltAngle = 14f;
+    [Tooltip("Velocidad de suavizado del giro")]
+    [SerializeField] private float tiltSpeed = 12f;
+
     // 0 = Carril Izquierdo, 1 = Centro, 2 = Carril Derecho
     private int currentLane = 1;
     private Vector3 targetPosition;
@@ -22,8 +28,19 @@ public class ShipController : MonoBehaviour
 
     void Update()
     {
+        float previousX = transform.position.x;
+
         // Desplazamiento fluido hacia el carril seleccionado
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * moveSpeed);
+
+        // Inclinación dinámica proporcional a la velocidad horizontal de desplazamiento
+        if (Time.deltaTime > 0f)
+        {
+            float velocityX = (transform.position.x - previousX) / Time.deltaTime;
+            float targetTilt = -Mathf.Clamp(velocityX / 6f, -1f, 1f) * maxTiltAngle;
+            Quaternion targetRotation = Quaternion.Euler(0f, 0f, targetTilt);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * tiltSpeed);
+        }
     }
 
     public void MoveLeft()

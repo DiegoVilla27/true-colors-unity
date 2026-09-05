@@ -48,8 +48,8 @@ public class InputHandler : MonoBehaviour
       }
     }
 
-    // 2. Teclado en Editor con New Input System
-#if UNITY_EDITOR
+    // 2. Teclado en Editor y builds de Escritorio con New Input System
+#if UNITY_EDITOR || UNITY_STANDALONE
         HandleKeyboardTesting();
 #endif
   }
