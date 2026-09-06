@@ -52,6 +52,7 @@ public class GameHUD : MonoBehaviour
     if (pauseButton != null) pauseButton.SetActive(true);
 
     SubscribeEvents();
+    UpdateInitialUI();
   }
 
   void OnDestroy()
@@ -82,6 +83,29 @@ public class GameHUD : MonoBehaviour
     if (gameOverPanel != null) gameOverPanel.SetActive(false);
     if (pausePanel != null) pausePanel.SetActive(false);
     if (pauseButton != null) pauseButton.SetActive(true);
+
+    UpdateInitialUI();
+  }
+
+  private void UpdateInitialUI()
+  {
+    if (ScoreManager.Instance != null)
+    {
+      if (highScoreText != null)
+      {
+        highScoreText.SetText("BEST: {0}", ScoreManager.Instance.HighScore);
+      }
+
+      if (scoreText != null)
+      {
+        scoreText.SetText("{0}", ScoreManager.Instance.CurrentScore);
+      }
+    }
+
+    if (comboText != null)
+    {
+      comboText.SetText(string.Empty);
+    }
   }
 
   private void SubscribeEvents()
