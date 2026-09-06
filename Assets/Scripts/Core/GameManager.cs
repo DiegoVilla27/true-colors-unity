@@ -92,6 +92,11 @@ public class GameManager : MonoBehaviour
     {
       gameObject.AddComponent<OverdriveVFXOverlay>();
     }
+
+    if (GetComponent<LaneManager>() == null && FindAnyObjectByType<LaneManager>() == null)
+    {
+      gameObject.AddComponent<LaneManager>();
+    }
   }
 
   private void SetState(GameState newState)

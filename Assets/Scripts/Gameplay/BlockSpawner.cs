@@ -58,8 +58,10 @@ public class BlockSpawner : MonoBehaviour
 
   private void SpawnRandomBlock()
   {
-    float laneX = AllLanes[Random.Range(0, AllLanes.Length)];
-    Vector3 spawnPos = new Vector3(laneX, 6f, 0f);
+    float[] lanes = (LaneManager.Instance != null) ? LaneManager.Instance.AllLanes : AllLanes;
+    float laneX = lanes[Random.Range(0, lanes.Length)];
+    float spawnY = (LaneManager.Instance != null) ? LaneManager.Instance.SpawnY : 6f;
+    Vector3 spawnPos = new Vector3(laneX, spawnY, 0f);
 
     GameObject newBlock = BlockPool.Instance.GetBlock();
     newBlock.transform.position = spawnPos;

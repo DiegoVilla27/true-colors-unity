@@ -60,4 +60,18 @@ public class ShipController : MonoBehaviour
             targetPosition = new Vector3(lanePositions[currentLane], transform.position.y, 0f);
         }
     }
+
+    /// <summary>
+    /// Configura dinámicamente los carriles y la altura de la nave en base al layout de pantalla.
+    /// </summary>
+    public void ApplyLanes(float[] newLanes, float? newY = null)
+    {
+        if (newLanes == null || newLanes.Length == 0) return;
+        lanePositions = newLanes;
+        currentLane = Mathf.Clamp(currentLane, 0, lanePositions.Length - 1);
+
+        float posY = newY.HasValue ? newY.Value : transform.position.y;
+        targetPosition = new Vector3(lanePositions[currentLane], posY, 0f);
+        transform.position = targetPosition;
+    }
 }

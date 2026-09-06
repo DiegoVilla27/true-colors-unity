@@ -109,7 +109,8 @@ public class CollectibleBlock : MonoBehaviour
     float speedMultiplier = PowerUpManager.Instance != null ? PowerUpManager.Instance.GlobalSpeedMultiplier : 1f;
     transform.Translate(Vector3.down * (fallSpeed * speedMultiplier) * Time.deltaTime);
 
-    if (transform.position.y < -5.5f)
+    float despawnThreshold = (LaneManager.Instance != null) ? LaneManager.Instance.DespawnY : -5.5f;
+    if (transform.position.y < despawnThreshold)
     {
       // Los power-ups nunca causan Game Over al salir de pantalla
       if (blockType != BlockType.Normal)
