@@ -85,7 +85,11 @@ public class GameManager : MonoBehaviour
       gameObject.AddComponent<PowerUpManager>();
     }
 
-    var hud = GetComponent<GameHUD>() ?? gameObject.AddComponent<GameHUD>();
+    var hud = GetComponent<GameHUD>();
+    if (hud == null)
+    {
+      hud = gameObject.AddComponent<GameHUD>();
+    }
     hud.Initialize(scoreText, comboText, highScoreText, finalScoreText, gameOverPanel, pausePanel, pauseButton);
 
     if (GetComponent<OverdriveVFXOverlay>() == null)
@@ -105,6 +109,13 @@ public class GameManager : MonoBehaviour
       {
         ships[i].gameObject.AddComponent<ShipThruster>();
       }
+    }
+
+    Camera mainCam = Camera.main;
+    if (mainCam == null) mainCam = FindAnyObjectByType<Camera>();
+    if (mainCam != null && mainCam.GetComponent<SpaceStarfield>() == null)
+    {
+      mainCam.gameObject.AddComponent<SpaceStarfield>();
     }
   }
 
