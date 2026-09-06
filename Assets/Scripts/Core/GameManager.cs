@@ -97,6 +97,15 @@ public class GameManager : MonoBehaviour
     {
       gameObject.AddComponent<LaneManager>();
     }
+
+    var ships = FindObjectsByType<ShipController>();
+    for (int i = 0; i < ships.Length; i++)
+    {
+      if (ships[i].GetComponent<ShipThruster>() == null)
+      {
+        ships[i].gameObject.AddComponent<ShipThruster>();
+      }
+    }
   }
 
   private void SetState(GameState newState)
