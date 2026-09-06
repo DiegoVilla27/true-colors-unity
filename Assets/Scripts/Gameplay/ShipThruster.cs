@@ -135,14 +135,19 @@ public class ShipThruster : MonoBehaviour
     }
   }
 
+  public void SetBoostActive(bool active)
+  {
+    targetBoostProgress = active ? 1f : 0f;
+  }
+
   private void HandleOverdriveStarted()
   {
-    targetBoostProgress = 1f;
+    SetBoostActive(true);
   }
 
   private void HandleOverdriveEnded()
   {
-    targetBoostProgress = 0f;
+    SetBoostActive(false);
   }
 
   private void ConfigureColorPalette()

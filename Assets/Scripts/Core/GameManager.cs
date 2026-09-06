@@ -173,13 +173,13 @@ public class GameManager : MonoBehaviour
   public void RestartGame()
   {
     Time.timeScale = 1f;
-    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    SceneFader.LoadScene(SceneManager.GetActiveScene().buildIndex, 0.25f, 0.35f);
   }
 
   public void GoToMainMenu()
   {
     Time.timeScale = 1f;
-    SceneManager.LoadScene("MainMenu");
+    SceneFader.LoadScene("MainMenu", 0.3f, 0.4f);
   }
   #endregion
 }
