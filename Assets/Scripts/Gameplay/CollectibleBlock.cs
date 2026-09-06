@@ -37,6 +37,14 @@ public class CollectibleBlock : MonoBehaviour
   public GameColor blockColor;
   public float fallSpeed = 5f;
 
+  [Header("Rock Sprites")]
+  [SerializeField] private Sprite spriteRedRock;
+  [SerializeField] private Sprite spriteBlueRock;
+  [SerializeField] private Sprite spriteYellowRock;
+  [SerializeField] private Sprite spriteGreenRock;
+  [SerializeField] private Sprite spriteBombRock;
+  [SerializeField] private Sprite spriteTimeRock;
+
   [Header("VFX")]
   [SerializeField] private GameObject particlePrefab;
 
@@ -66,17 +74,33 @@ public class CollectibleBlock : MonoBehaviour
     if (spriteRenderer == null)
       spriteRenderer = GetComponent<SpriteRenderer>();
 
+    Sprite targetSprite = null;
+
     if (blockType == BlockType.Bomb)
     {
-      spriteRenderer.color = ColorBomb;
+      targetSprite = spriteBombRock;
+      spriteRenderer.color = (targetSprite != null) ? Color.white : ColorBomb;
     }
     else if (blockType == BlockType.SlowMotion)
     {
-      spriteRenderer.color = ColorSlowMo;
+      targetSprite = spriteTimeRock;
+      spriteRenderer.color = (targetSprite != null) ? Color.white : ColorSlowMo;
     }
     else
     {
-      spriteRenderer.color = GetColorForType(blockColor);
+      switch (blockColor)
+      {
+        case GameColor.Red: targetSprite = spriteRedRock; break;
+        case GameColor.Blue: targetSprite = spriteBlueRock; break;
+        case GameColor.Yellow: targetSprite = spriteYellowRock; break;
+        case GameColor.Green: targetSprite = spriteGreenRock; break;
+      }
+      spriteRenderer.color = (targetSprite != null) ? Color.white : GetColorForType(blockColor);
+    }
+
+    if (targetSprite != null)
+    {
+      spriteRenderer.sprite = targetSprite;
     }
   }
 
@@ -225,6 +249,15 @@ public class CollectibleBlock : MonoBehaviour
     if (spriteRenderer == null)
       spriteRenderer = GetComponent<SpriteRenderer>();
 
-    spriteRenderer.color = GetColorForType(blockColor);
+    Sprite targetSprite = (blockColor == GameColor.Red) ? spriteRedRock : spriteBlueRock;
+    if (targetSprite != null)
+    {
+      spriteRenderer.sprite = targetSprite;
+      spriteRenderer.color = Color.white;
+    }
+    else
+    {
+      spriteRenderer.color = GetColorForType(blockColor);
+    }
   }
 }
