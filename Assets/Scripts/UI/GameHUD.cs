@@ -37,6 +37,8 @@ public class GameHUD : MonoBehaviour
   [SerializeField] private GameObject pauseButton;
   [SerializeField] private GameObject settingsPanel;
   [SerializeField] private TextMeshProUGUI pauseScoreText;
+  [SerializeField] private TextMeshProUGUI gameOverScoreText;
+  [SerializeField] private TextMeshProUGUI gameOverRecordText;
 
   [Header("Juice & Animaciones")]
   [SerializeField] private float scorePunchMultiplier = 1.25f;
@@ -74,6 +76,8 @@ public class GameHUD : MonoBehaviour
     ClearBoostImage();
     EnsureRocksTextBound();
     EnsureTimeTextBound();
+    EnsurePauseScoreBound();
+    EnsureGameOverReferencesBound();
 
     if (gameOverPanel != null) gameOverPanel.SetActive(false);
     if (pausePanel != null) pausePanel.SetActive(false);
@@ -433,10 +437,22 @@ public class GameHUD : MonoBehaviour
         if (gameOverPanel != null)
         {
           gameOverPanel.SetActive(true);
-          if (finalScoreText != null && ScoreManager.Instance != null)
+          EnsureGameOverReferencesBound();
+          if (gameOverScoreText != null && ScoreManager.Instance != null)
           {
-            finalScoreText.SetText("SCORE: {0}", ScoreManager.Instance.CurrentScore);
+            gameOverScoreText.SetText("{0}", ScoreManager.Instance.CurrentScore);
           }
+          else if (finalScoreText != null && ScoreManager.Instance != null)
+          {
+            finalScoreText.SetText("{0}", ScoreManager.Instance.CurrentScore);
+          }
+
+          if (gameOverRecordText != null && ScoreManager.Instance != null)
+          {
+            gameOverRecordText.SetText("{0}", ScoreManager.Instance.HighScore);
+          }
+
+          AutoWireGameOverButtons();
         }
         break;
     }
@@ -581,6 +597,70 @@ public class GameHUD : MonoBehaviour
     }
   }
 
+  public void EnsureGameOverReferencesBound()
+  {
+    if (gameOverPanel == null) return;
+
+    if (gameOverScoreText == null)
+    {
+      Transform scoreValTrans = gameOverPanel.transform.Find("Container/Content/ScoreRow/ScoreBadge/ScoreValue");
+      if (scoreValTrans != null)
+      {
+        gameOverScoreText = scoreValTrans.GetComponent<TextMeshProUGUI>();
+      }
+      else
+      {
+        var allTexts = gameOverPanel.GetComponentsInChildren<TextMeshProUGUI>(true);
+        for (int i = 0; i < allTexts.Length; i++)
+        {
+          if (allTexts[i].gameObject.name == "ScoreValue" || allTexts[i].gameObject.name == "GameOverScoreValue")
+          {
+            gameOverScoreText = allTexts[i];
+            break;
+          }
+        }
+      }
+      if (finalScoreText == null && gameOverScoreText != null)
+      {
+        finalScoreText = gameOverScoreText;
+      }
+    }
+
+    if (gameOverRecordText == null)
+    {
+      Transform recordValTrans = gameOverPanel.transform.Find("Container/Content/RecordRow/RecordBadge/RecordValue");
+      if (recordValTrans != null)
+      {
+        gameOverRecordText = recordValTrans.GetComponent<TextMeshProUGUI>();
+      }
+      else
+      {
+        var allTexts = gameOverPanel.GetComponentsInChildren<TextMeshProUGUI>(true);
+        for (int i = 0; i < allTexts.Length; i++)
+        {
+          if (allTexts[i].gameObject.name == "RecordValue" || allTexts[i].gameObject.name == "GameOverRecordValue")
+          {
+            gameOverRecordText = allTexts[i];
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  private void AutoWireGameOverButtons()
+  {
+    if (gameOverPanel == null) return;
+    var buttons = gameOverPanel.GetComponentsInChildren<Button>(true);
+    for (int i = 0; i < buttons.Length; i++)
+    {
+      if (buttons[i].GetComponent<UIButtonPressEffect>() == null)
+      {
+        buttons[i].gameObject.AddComponent<UIButtonPressEffect>();
+      }
+    }
+  }
+
   private void AutoWirePauseButtons()
   {
     if (pausePanel == null) return;
@@ -607,6 +687,8 @@ public class GameHUD : MonoBehaviour
     EnsureBoostTypeBound();
     EnsureRocksTextBound();
     EnsureTimeTextBound();
+    EnsurePauseScoreBound();
+    EnsureGameOverReferencesBound();
   }
 #endif
   #endregion

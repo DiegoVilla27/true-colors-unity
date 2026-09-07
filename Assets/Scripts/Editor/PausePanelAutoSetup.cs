@@ -141,6 +141,7 @@ namespace TrueColors.EditorTools
                     var menuBtn = menuTrans.GetComponent<Button>();
                     if (menuBtn != null && gm != null)
                     {
+                        menuBtn.navigation = new Navigation { mode = Navigation.Mode.None };
                         while (menuBtn.onClick.GetPersistentEventCount() > 0)
                         {
                             UnityEventTools.RemovePersistentListener(menuBtn.onClick, 0);
@@ -158,6 +159,7 @@ namespace TrueColors.EditorTools
                     var settingsBtn = settingsTrans.GetComponent<Button>();
                     if (settingsBtn != null && gm != null)
                     {
+                        settingsBtn.navigation = new Navigation { mode = Navigation.Mode.None };
                         while (settingsBtn.onClick.GetPersistentEventCount() > 0)
                         {
                             UnityEventTools.RemovePersistentListener(settingsBtn.onClick, 0);
@@ -175,6 +177,7 @@ namespace TrueColors.EditorTools
                     var playBtn = playTrans.GetComponent<Button>();
                     if (playBtn != null && gm != null)
                     {
+                        playBtn.navigation = new Navigation { mode = Navigation.Mode.None };
                         while (playBtn.onClick.GetPersistentEventCount() > 0)
                         {
                             UnityEventTools.RemovePersistentListener(playBtn.onClick, 0);

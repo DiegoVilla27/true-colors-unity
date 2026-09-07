@@ -251,6 +251,11 @@ public class GameManager : MonoBehaviour
     }
   }
 
+  public void OpenLeaderboard()
+  {
+    Debug.Log("[GameManager] OpenLeaderboard pulsado desde GameOver.");
+  }
+
   public void GoToMainMenu()
   {
     // 1. Detener el estado de la partida y restaurar escala de tiempo
