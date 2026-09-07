@@ -1,11 +1,13 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
 /// Responsabilidad Única (SRP): Presentador de la interfaz de usuario (HUD).
 /// Actualiza textos TextMeshPro con cero asignaciones de memoria, ejecuta animaciones
-/// de rebote (Punch Scale) y gestiona la visibilidad de los paneles modales (Pausa / Game Over).
+/// de rebote (Punch Scale) y gestiona la visibilidad de los paneles modales (Pausa / Game Over)
+/// y del indicador visual de Power-Ups (BoostType).
 /// </summary>
 public class GameHUD : MonoBehaviour
 {
@@ -16,6 +18,18 @@ public class GameHUD : MonoBehaviour
   [SerializeField] private TextMeshProUGUI comboText;
   [SerializeField] private TextMeshProUGUI highScoreText;
   [SerializeField] private TextMeshProUGUI finalScoreText;
+  [SerializeField] private TextMeshProUGUI rocksText;
+  [SerializeField] private TextMeshProUGUI timeText;
+
+  [Header("Power-Up / Boost Display")]
+  [Tooltip("Imagen que muestra el Power-Up activo (BoostType)")]
+  [SerializeField] private Image boostTypeImage;
+  [Tooltip("Sprite de la bomba que se muestra al recogerla")]
+  [SerializeField] private Sprite bombSprite;
+  [Tooltip("Sprite del reloj que se muestra durante el Slow-Motion")]
+  [SerializeField] private Sprite clockSprite;
+  [Tooltip("Tiempo en segundos que se muestra el icono de la bomba")]
+  [SerializeField] private float bombDisplayDuration = 1.2f;
 
   [Header("Paneles & Modales")]
   [SerializeField] private GameObject gameOverPanel;
@@ -29,8 +43,15 @@ public class GameHUD : MonoBehaviour
 
   private Vector3 scoreOriginalScale = Vector3.one;
   private Vector3 comboOriginalScale = Vector3.one;
+  private Vector3 boostOriginalScale = Vector3.one;
+  private Vector3 rocksOriginalScale = Vector3.one;
   private Coroutine scorePunchRoutine;
   private Coroutine comboPunchRoutine;
+  private Coroutine boostPunchRoutine;
+  private Coroutine rocksPunchRoutine;
+  private Coroutine bombClearRoutine;
+
+  private int lastDisplayedSecond = -1;
 
   void Awake()
   {
@@ -47,12 +68,22 @@ public class GameHUD : MonoBehaviour
     if (scoreText != null) scoreOriginalScale = scoreText.transform.localScale;
     if (comboText != null) comboOriginalScale = comboText.transform.localScale;
 
+    EnsureBoostTypeBound();
+    ClearBoostImage();
+    EnsureRocksTextBound();
+    EnsureTimeTextBound();
+
     if (gameOverPanel != null) gameOverPanel.SetActive(false);
     if (pausePanel != null) pausePanel.SetActive(false);
     if (pauseButton != null) pauseButton.SetActive(true);
 
     SubscribeEvents();
     UpdateInitialUI();
+  }
+
+  void Update()
+  {
+    UpdateTimeDisplay();
   }
 
   void OnDestroy()
@@ -67,7 +98,12 @@ public class GameHUD : MonoBehaviour
     TextMeshProUGUI finalScore,
     GameObject gameOver,
     GameObject pause,
-    GameObject pauseBtn)
+    GameObject pauseBtn,
+    Image boostType = null,
+    Sprite bomb = null,
+    Sprite clock = null,
+    TextMeshProUGUI rocks = null,
+    TextMeshProUGUI time = null)
   {
     scoreText = score;
     comboText = combo;
@@ -76,9 +112,19 @@ public class GameHUD : MonoBehaviour
     gameOverPanel = gameOver;
     pausePanel = pause;
     pauseButton = pauseBtn;
+    if (boostType != null) boostTypeImage = boostType;
+    if (bomb != null) bombSprite = bomb;
+    if (clock != null) clockSprite = clock;
+    if (rocks != null) rocksText = rocks;
+    if (time != null) timeText = time;
 
     if (scoreText != null) scoreOriginalScale = scoreText.transform.localScale;
     if (comboText != null) comboOriginalScale = comboText.transform.localScale;
+
+    EnsureBoostTypeBound();
+    ClearBoostImage();
+    EnsureRocksTextBound();
+    EnsureTimeTextBound();
 
     if (gameOverPanel != null) gameOverPanel.SetActive(false);
     if (pausePanel != null) pausePanel.SetActive(false);
@@ -105,6 +151,54 @@ public class GameHUD : MonoBehaviour
     if (comboText != null)
     {
       comboText.SetText(string.Empty);
+    }
+
+    EnsureRocksTextBound();
+    if (rocksText != null)
+    {
+      int currentRocks = CurrencyManager.Instance != null
+        ? CurrencyManager.Instance.TotalRocks
+        : PlayerPrefs.GetInt(CurrencyManager.ROCKS_KEY, 0);
+      rocksText.SetText("{0}", currentRocks);
+    }
+
+    EnsureTimeTextBound();
+    if (timeText != null)
+    {
+      timeText.SetText("00:00");
+    }
+    lastDisplayedSecond = -1;
+  }
+
+  private void UpdateTimeDisplay()
+  {
+    if (timeText == null)
+    {
+      EnsureTimeTextBound();
+      if (timeText == null) return;
+    }
+
+    if (GameManager.Instance == null || GameManager.Instance.CurrentState != GameManager.GameState.Playing)
+      return;
+
+    // Si el cronómetro aún no ha empezado (estamos en countdown), mantener en 00:00
+    if (!GameManager.Instance.IsTimerRunning)
+    {
+      if (lastDisplayedSecond != 0)
+      {
+        lastDisplayedSecond = 0;
+        timeText.text = "00:00";
+      }
+      return;
+    }
+
+    int totalSeconds = (int)GameManager.Instance.GameTime;
+    if (totalSeconds != lastDisplayedSecond)
+    {
+      lastDisplayedSecond = totalSeconds;
+      int minutes = totalSeconds / 60;
+      int seconds = totalSeconds % 60;
+      timeText.text = $"{minutes:00}:{seconds:00}";
     }
   }
 
@@ -133,6 +227,11 @@ public class GameHUD : MonoBehaviour
     {
       GameManager.Instance.OnStateChanged += HandleGameStateChanged;
     }
+
+    if (CurrencyManager.Instance != null)
+    {
+      CurrencyManager.Instance.OnTotalRocksChanged += HandleTotalRocksChanged;
+    }
   }
 
   private void UnsubscribeEvents()
@@ -160,6 +259,11 @@ public class GameHUD : MonoBehaviour
     {
       GameManager.Instance.OnStateChanged -= HandleGameStateChanged;
     }
+
+    if (CurrencyManager.Instance != null)
+    {
+      CurrencyManager.Instance.OnTotalRocksChanged -= HandleTotalRocksChanged;
+    }
   }
 
   #region Handlers de Eventos
@@ -178,7 +282,7 @@ public class GameHUD : MonoBehaviour
 
     if (OverdriveController.Instance != null && OverdriveController.Instance.IsOverdriveActive)
     {
-      comboText.SetText("<color=#FFD700>🔥 OVERDRIVE x5! 🔥</color>");
+      comboText.SetText("<color=#FFD700>OVERDRIVE x5!</color>");
     }
     else if (multiplier > 1)
     {
@@ -202,11 +306,21 @@ public class GameHUD : MonoBehaviour
     }
   }
 
+  private void HandleTotalRocksChanged(int newTotal)
+  {
+    EnsureRocksTextBound();
+    if (rocksText != null)
+    {
+      rocksText.SetText("{0}", newTotal);
+      TriggerRocksPunch();
+    }
+  }
+
   private void HandleOverdriveStarted()
   {
     if (comboText != null)
     {
-      comboText.SetText("<color=#FFD700>🔥 OVERDRIVE x5! 🔥</color>");
+      comboText.SetText("<color=#FFD700>OVERDRIVE x5!</color>");
       TriggerComboPunch();
     }
   }
@@ -221,27 +335,55 @@ public class GameHUD : MonoBehaviour
 
   private void HandlePowerUpActivated(PowerUpType type)
   {
-    if (comboText == null) return;
+    if (comboText != null)
+    {
+      if (type == PowerUpType.Bomb)
+      {
+        comboText.SetText("<color=#E040FB>SCREEN WIPE! +25</color>");
+        TriggerComboPunch();
+      }
+      else if (type == PowerUpType.SlowMotion)
+      {
+        comboText.SetText("<color=#00E5FF>SLOW-MO! 3s</color>");
+        TriggerComboPunch();
+      }
+    }
 
     if (type == PowerUpType.Bomb)
     {
-      comboText.SetText("<color=#E040FB>💣 SCREEN WIPE! +25</color>");
-      TriggerComboPunch();
+      if (bombClearRoutine != null) StopCoroutine(bombClearRoutine);
+      SetBoostImage(bombSprite);
+      bombClearRoutine = StartCoroutine(ClearBombAfterDelay());
     }
     else if (type == PowerUpType.SlowMotion)
     {
-      comboText.SetText("<color=#00E5FF>⏱️ SLOW-MO! 3s</color>");
-      TriggerComboPunch();
+      if (bombClearRoutine != null) StopCoroutine(bombClearRoutine);
+      SetBoostImage(clockSprite);
     }
+  }
+
+  private IEnumerator ClearBombAfterDelay()
+  {
+    yield return new WaitForSeconds(bombDisplayDuration);
+    if (PowerUpManager.Instance == null || !PowerUpManager.Instance.IsSlowMoActive)
+    {
+      ClearBoostImage();
+    }
+    bombClearRoutine = null;
   }
 
   private void HandlePowerUpEnded(PowerUpType type)
   {
+    if (type == PowerUpType.SlowMotion)
+    {
+      ClearBoostImage();
+    }
+
     if (comboText == null) return;
 
     if (OverdriveController.Instance != null && OverdriveController.Instance.IsOverdriveActive)
     {
-      comboText.SetText("<color=#FFD700>🔥 OVERDRIVE x5! 🔥</color>");
+      comboText.SetText("<color=#FFD700>OVERDRIVE x5!</color>");
     }
     else if (ScoreManager.Instance != null && ScoreManager.Instance.ScoreMultiplier > 1)
     {
@@ -269,6 +411,7 @@ public class GameHUD : MonoBehaviour
         break;
 
       case GameManager.GameState.GameOver:
+        ClearBoostImage();
         if (pausePanel != null) pausePanel.SetActive(false);
         if (pauseButton != null) pauseButton.SetActive(false);
         if (gameOverPanel != null)
@@ -282,6 +425,135 @@ public class GameHUD : MonoBehaviour
         break;
     }
   }
+
+  public void SetBoostImage(Sprite sprite)
+  {
+    EnsureBoostTypeBound();
+
+    if (boostTypeImage != null)
+    {
+      boostTypeImage.sprite = sprite;
+      boostTypeImage.enabled = (sprite != null);
+      boostTypeImage.color = sprite != null ? Color.white : new Color(1f, 1f, 1f, 0f);
+      if (sprite != null)
+      {
+        boostTypeImage.preserveAspect = true;
+        TriggerBoostPunch();
+      }
+    }
+  }
+
+  public void ClearBoostImage()
+  {
+    if (boostTypeImage != null)
+    {
+      boostTypeImage.sprite = null;
+      boostTypeImage.enabled = false;
+      boostTypeImage.color = new Color(1f, 1f, 1f, 0f);
+    }
+  }
+
+  private void EnsureBoostTypeBound()
+  {
+    if (boostTypeImage == null)
+    {
+      var boostGo = GameObject.Find("BoostType");
+      if (boostGo != null)
+      {
+        boostTypeImage = boostGo.GetComponent<Image>();
+      }
+    }
+
+    if (boostTypeImage != null && boostTypeImage.transform.localScale != Vector3.zero)
+    {
+      boostOriginalScale = boostTypeImage.transform.localScale;
+    }
+
+#if UNITY_EDITOR
+    if (bombSprite == null)
+    {
+      bombSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/rocks/rock_bomb.png");
+    }
+    if (clockSprite == null)
+    {
+      clockSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/rocks/rock_time.png")
+                 ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/icons/CLOCK.png");
+    }
+#endif
+  }
+
+  private void EnsureRocksTextBound()
+  {
+    if (rocksText == null)
+    {
+      var hudContainer = GameObject.Find("HUD/Container");
+      if (hudContainer != null)
+      {
+        var rocksCol = hudContainer.transform.Find("Rocks") ?? hudContainer.transform.Find("Rock");
+        if (rocksCol != null)
+        {
+          var textChild = rocksCol.Find("Text") ?? rocksCol.Find("Text (TMP)");
+          if (textChild != null)
+          {
+            rocksText = textChild.GetComponent<TextMeshProUGUI>();
+          }
+        }
+      }
+
+      if (rocksText == null)
+      {
+        var go = GameObject.Find("Rocks/Text") ?? GameObject.Find("Rock/Text");
+        if (go != null) rocksText = go.GetComponent<TextMeshProUGUI>();
+      }
+    }
+
+    if (rocksText != null && rocksText.transform.localScale != Vector3.zero)
+    {
+      rocksOriginalScale = rocksText.transform.localScale;
+    }
+  }
+
+  private void EnsureTimeTextBound()
+  {
+    if (timeText == null)
+    {
+      var hudContainer = GameObject.Find("HUD/Container");
+      if (hudContainer != null)
+      {
+        var timeCol = hudContainer.transform.Find("Time");
+        if (timeCol != null)
+        {
+          var textChild = timeCol.Find("Text") ?? timeCol.Find("Text (TMP)");
+          if (textChild != null)
+          {
+            timeText = textChild.GetComponent<TextMeshProUGUI>();
+          }
+        }
+      }
+
+      if (timeText == null)
+      {
+        var go = GameObject.Find("Time/Text");
+        if (go != null) timeText = go.GetComponent<TextMeshProUGUI>();
+      }
+    }
+  }
+
+  private void TriggerBoostPunch()
+  {
+    if (boostTypeImage == null) return;
+    if (boostPunchRoutine != null) StopCoroutine(boostPunchRoutine);
+    boostPunchRoutine = StartCoroutine(PunchRoutine(boostTypeImage.transform, boostOriginalScale, comboPunchMultiplier, punchDuration * 1.2f));
+  }
+
+#if UNITY_EDITOR
+  void OnValidate()
+  {
+    EnsureBoostTypeBound();
+    EnsureRocksTextBound();
+    EnsureTimeTextBound();
+  }
+#endif
   #endregion
 
   #region Punch Scale Juice
@@ -290,6 +562,13 @@ public class GameHUD : MonoBehaviour
     if (scoreText == null) return;
     if (scorePunchRoutine != null) StopCoroutine(scorePunchRoutine);
     scorePunchRoutine = StartCoroutine(PunchRoutine(scoreText.transform, scoreOriginalScale, scorePunchMultiplier, punchDuration));
+  }
+
+  private void TriggerRocksPunch()
+  {
+    if (rocksText == null) return;
+    if (rocksPunchRoutine != null) StopCoroutine(rocksPunchRoutine);
+    rocksPunchRoutine = StartCoroutine(PunchRoutine(rocksText.transform, rocksOriginalScale, scorePunchMultiplier, punchDuration));
   }
 
   private void TriggerComboPunch()

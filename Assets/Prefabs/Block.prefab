@@ -155,10 +155,10 @@ MonoBehaviour:
   blockType: 0
   blockColor: 0
   fallSpeed: 5
-  spriteRedRock: {fileID: 8788276245851300470, guid: c43dbc0639c8a45669ce5caa6ded3719, type: 3}
-  spriteBlueRock: {fileID: -6872310172859134809, guid: 7088fcf6dcb4e4fd49a047b5981439a6, type: 3}
-  spriteYellowRock: {fileID: 580738294663855669, guid: dfdb0813c3ab142698ab05ca6489d856, type: 3}
-  spriteGreenRock: {fileID: 2396062287360241554, guid: c19267ef02f5f4b26981211130eb78cd, type: 3}
-  spriteBombRock: {fileID: 8685487620657597786, guid: 770284f2a8b894bbc8bc9b859cd66a99, type: 3}
-  spriteTimeRock: {fileID: 7422504262543663000, guid: 71168652b2a194f70b51e798963ac8bf, type: 3}
+  spriteRedRock: {fileID: 21300000, guid: c43dbc0639c8a45669ce5caa6ded3719, type: 3}
+  spriteBlueRock: {fileID: 21300000, guid: 7088fcf6dcb4e4fd49a047b5981439a6, type: 3}
+  spriteYellowRock: {fileID: 21300000, guid: dfdb0813c3ab142698ab05ca6489d856, type: 3}
+  spriteGreenRock: {fileID: 21300000, guid: c19267ef02f5f4b26981211130eb78cd, type: 3}
+  spriteBombRock: {fileID: 21300000, guid: 770284f2a8b894bbc8bc9b859cd66a99, type: 3}
+  spriteTimeRock: {fileID: 21300000, guid: 71168652b2a194f70b51e798963ac8bf, type: 3}
   particlePrefab: {fileID: 4820586704209911552, guid: 1063de31989954f2aa632fcaf60b9e09, type: 3}

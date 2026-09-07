@@ -22,11 +22,15 @@ public class GameManager : MonoBehaviour
 
   [Header("Estado de Partida")]
   [SerializeField] private GameState currentState = GameState.Playing;
+  [SerializeField] private float gameTime = 0f;
+  private bool isTimerRunning = false;
 
   public GameState CurrentState => currentState;
   public bool IsGameOver => currentState == GameState.GameOver;
   public bool IsPaused => currentState == GameState.Paused;
   public bool IsOverdriveActive => OverdriveController.Instance != null && OverdriveController.Instance.IsOverdriveActive;
+  public float GameTime => gameTime;
+  public bool IsTimerRunning => isTimerRunning;
 
   public event Action<GameState> OnStateChanged;
 
@@ -61,7 +65,35 @@ public class GameManager : MonoBehaviour
 
   void Start()
   {
+    gameTime = 0f;
     SetState(GameState.Playing);
+
+    var countdown = GetComponent<CountdownController>() ?? FindAnyObjectByType<CountdownController>();
+    if (countdown == null || !countdown.enabled || !countdown.gameObject.activeInHierarchy)
+    {
+      StartGameTimer();
+    }
+    else
+    {
+      isTimerRunning = false;
+    }
+  }
+
+  void Update()
+  {
+    if (currentState == GameState.Playing && isTimerRunning)
+    {
+      gameTime += Time.deltaTime;
+    }
+  }
+
+  /// <summary>
+  /// Inicia el conteo del tiempo de la partida una vez concluido el Countdown.
+  /// </summary>
+  public void StartGameTimer()
+  {
+    gameTime = 0f;
+    isTimerRunning = true;
   }
 
   /// <summary>
@@ -83,6 +115,11 @@ public class GameManager : MonoBehaviour
     if (GetComponent<PowerUpManager>() == null)
     {
       gameObject.AddComponent<PowerUpManager>();
+    }
+
+    if (GetComponent<CurrencyManager>() == null)
+    {
+      gameObject.AddComponent<CurrencyManager>();
     }
 
     var hud = GetComponent<GameHUD>();
@@ -132,6 +169,15 @@ public class GameManager : MonoBehaviour
     if (ScoreManager.Instance != null)
     {
       ScoreManager.Instance.AddScore(basePoints);
+    }
+  }
+
+  public void AddDestroyedRock(int amount = 1)
+  {
+    if (IsGameOver) return;
+    if (CurrencyManager.Instance != null)
+    {
+      CurrencyManager.Instance.AddRocks(amount);
     }
   }
 

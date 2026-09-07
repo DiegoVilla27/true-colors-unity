@@ -33,9 +33,16 @@ public class CollectibleBlock : MonoBehaviour
   }
   #endregion
 
+  [Header("Movimiento & Rotación")]
   public BlockType blockType = BlockType.Normal;
   public GameColor blockColor;
   public float fallSpeed = 5f;
+  [Tooltip("Velocidad mínima de rotación sutil en grados por segundo")]
+  [SerializeField] private float minRotationSpeed = 20f;
+  [Tooltip("Velocidad máxima de rotación sutil en grados por segundo")]
+  [SerializeField] private float maxRotationSpeed = 45f;
+
+  private float currentRotationSpeed = 0f;
 
   [Header("Rock Sprites")]
   [SerializeField] private Sprite spriteRedRock;
@@ -70,6 +77,10 @@ public class CollectibleBlock : MonoBehaviour
     blockType = type;
     blockColor = newColor;
     fallSpeed = speed;
+
+    // Asignar velocidad y dirección de giro sutil y variada (horaria o antihoraria)
+    float rotSpeed = Random.Range(minRotationSpeed, maxRotationSpeed);
+    currentRotationSpeed = (Random.value < 0.5f) ? rotSpeed : -rotSpeed;
 
     if (spriteRenderer == null)
       spriteRenderer = GetComponent<SpriteRenderer>();
@@ -107,7 +118,12 @@ public class CollectibleBlock : MonoBehaviour
   void Update()
   {
     float speedMultiplier = PowerUpManager.Instance != null ? PowerUpManager.Instance.GlobalSpeedMultiplier : 1f;
-    transform.Translate(Vector3.down * (fallSpeed * speedMultiplier) * Time.deltaTime);
+
+    // Desplazamiento vertical en espacio de mundo para que el giro local no desvíe el carril
+    transform.position += Vector3.down * (fallSpeed * speedMultiplier * Time.deltaTime);
+
+    // Giro sutil continuo desacoplado del movimiento pero reactivo a Slow-Motion
+    transform.Rotate(0f, 0f, currentRotationSpeed * speedMultiplier * Time.deltaTime);
 
     float despawnThreshold = (LaneManager.Instance != null) ? LaneManager.Instance.DespawnY : -5.5f;
     if (transform.position.y < despawnThreshold)
@@ -151,6 +167,7 @@ public class CollectibleBlock : MonoBehaviour
         {
           PowerUpManager.Instance.ActivateBomb();
         }
+        NotifyRockDestroyed();
         Recycle();
         return;
       }
@@ -163,6 +180,7 @@ public class CollectibleBlock : MonoBehaviour
         {
           PowerUpManager.Instance.ActivateSlowMotion();
         }
+        NotifyRockDestroyed();
         Recycle();
         return;
       }
@@ -173,6 +191,7 @@ public class CollectibleBlock : MonoBehaviour
         SpawnParticles();
         HapticFeedback.VibrateCollect();
         GameManager.Instance.AddScore(10);
+        NotifyRockDestroyed();
       }
       else
       {
@@ -200,7 +219,20 @@ public class CollectibleBlock : MonoBehaviour
   public void WipeByBomb()
   {
     SpawnParticles();
+    NotifyRockDestroyed();
     Recycle();
+  }
+
+  private void NotifyRockDestroyed()
+  {
+    if (CurrencyManager.Instance != null)
+    {
+      CurrencyManager.Instance.AddRocks(1);
+    }
+    else if (GameManager.Instance != null)
+    {
+      GameManager.Instance.AddDestroyedRock(1);
+    }
   }
 
   private void TriggerMissGameOver()
@@ -214,6 +246,7 @@ public class CollectibleBlock : MonoBehaviour
 
   private void Recycle()
   {
+    transform.rotation = Quaternion.identity;
     if (BlockPool.Instance != null)
     {
       BlockPool.Instance.ReturnBlock(gameObject);
