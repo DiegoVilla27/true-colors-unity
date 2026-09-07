@@ -38,8 +38,21 @@ public static class HapticFeedback
     }
 #endif
 
+    public const string VIBRATION_KEY = "Setting_Vibration";
+
+    public static bool IsVibrationEnabled
+    {
+        get => PlayerPrefs.GetInt(VIBRATION_KEY, 1) == 1;
+        set
+        {
+            PlayerPrefs.SetInt(VIBRATION_KEY, value ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+    }
+
     public static void VibrateCollect()
     {
+        if (!IsVibrationEnabled) return;
 #if UNITY_ANDROID && !UNITY_EDITOR
         InitializeAndroid();
         if (vibrator != null && vibrator.Call<bool>("hasVibrator"))
@@ -71,6 +84,7 @@ public static class HapticFeedback
 
     public static void VibrateGameOver()
     {
+        if (!IsVibrationEnabled) return;
 #if UNITY_ANDROID || UNITY_IOS
         Handheld.Vibrate();
 #endif

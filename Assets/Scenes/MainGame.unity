@@ -481,6 +481,7 @@ MonoBehaviour:
   gameOverPanel: {fileID: 1124976475}
   pausePanel: {fileID: 936750642}
   pauseButton: {fileID: 146416473}
+  settingsPanel: {fileID: 0}
 --- !u!114 &139566095
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4659,7 +4660,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.45, z: 0}
-  m_LocalScale: {x: 0.45, y: 0.72275215, z: 1}
+  m_LocalScale: {x: 0.45, y: 0.59806615, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1350453492}
@@ -6604,7 +6605,7 @@ ParticleSystem:
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 6.1836405, y: 0.2, z: 1}
+    m_Scale: {x: 6.191985, y: 0.2, z: 1}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -11213,7 +11214,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.45, z: 0}
-  m_LocalScale: {x: 0.45, y: 0.72275215, z: 1}
+  m_LocalScale: {x: 0.45, y: 0.59806615, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1263227033}

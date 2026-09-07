@@ -35,6 +35,8 @@ public class GameHUD : MonoBehaviour
   [SerializeField] private GameObject gameOverPanel;
   [SerializeField] private GameObject pausePanel;
   [SerializeField] private GameObject pauseButton;
+  [SerializeField] private GameObject settingsPanel;
+  [SerializeField] private TextMeshProUGUI pauseScoreText;
 
   [Header("Juice & Animaciones")]
   [SerializeField] private float scorePunchMultiplier = 1.25f;
@@ -99,11 +101,13 @@ public class GameHUD : MonoBehaviour
     GameObject gameOver,
     GameObject pause,
     GameObject pauseBtn,
+    GameObject settings = null,
     Image boostType = null,
     Sprite bomb = null,
     Sprite clock = null,
     TextMeshProUGUI rocks = null,
-    TextMeshProUGUI time = null)
+    TextMeshProUGUI time = null,
+    TextMeshProUGUI pauseScore = null)
   {
     scoreText = score;
     comboText = combo;
@@ -112,6 +116,8 @@ public class GameHUD : MonoBehaviour
     gameOverPanel = gameOver;
     pausePanel = pause;
     pauseButton = pauseBtn;
+    if (settings != null) settingsPanel = settings;
+    if (pauseScore != null) pauseScoreText = pauseScore;
     if (boostType != null) boostTypeImage = boostType;
     if (bomb != null) bombSprite = bomb;
     if (clock != null) clockSprite = clock;
@@ -125,9 +131,12 @@ public class GameHUD : MonoBehaviour
     ClearBoostImage();
     EnsureRocksTextBound();
     EnsureTimeTextBound();
+    EnsurePauseScoreBound();
+    AutoWirePauseButtons();
 
     if (gameOverPanel != null) gameOverPanel.SetActive(false);
     if (pausePanel != null) pausePanel.SetActive(false);
+    if (settingsPanel != null) settingsPanel.SetActive(false);
     if (pauseButton != null) pauseButton.SetActive(true);
 
     UpdateInitialUI();
@@ -403,11 +412,18 @@ public class GameHUD : MonoBehaviour
         if (pausePanel != null) pausePanel.SetActive(false);
         if (pauseButton != null) pauseButton.SetActive(true);
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (settingsPanel != null) settingsPanel.SetActive(false);
         break;
 
       case GameManager.GameState.Paused:
         if (pausePanel != null) pausePanel.SetActive(true);
         if (pauseButton != null) pauseButton.SetActive(false);
+        EnsurePauseScoreBound();
+        if (pauseScoreText != null && ScoreManager.Instance != null)
+        {
+          pauseScoreText.SetText("{0}", ScoreManager.Instance.CurrentScore);
+        }
+        AutoWirePauseButtons();
         break;
 
       case GameManager.GameState.GameOver:
@@ -535,6 +551,45 @@ public class GameHUD : MonoBehaviour
       {
         var go = GameObject.Find("Time/Text");
         if (go != null) timeText = go.GetComponent<TextMeshProUGUI>();
+      }
+    }
+  }
+
+  public void EnsurePauseScoreBound()
+  {
+    if (pauseScoreText != null) return;
+
+    if (pausePanel != null)
+    {
+      Transform scoreValTrans = pausePanel.transform.Find("Container/Content/Score/ScoreBackground/ScoreValue");
+      if (scoreValTrans != null)
+      {
+        pauseScoreText = scoreValTrans.GetComponent<TextMeshProUGUI>();
+      }
+      else
+      {
+        var allTexts = pausePanel.GetComponentsInChildren<TextMeshProUGUI>(true);
+        for (int i = 0; i < allTexts.Length; i++)
+        {
+          if (allTexts[i].gameObject.name == "ScoreValue")
+          {
+            pauseScoreText = allTexts[i];
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  private void AutoWirePauseButtons()
+  {
+    if (pausePanel == null) return;
+    var buttons = pausePanel.GetComponentsInChildren<Button>(true);
+    for (int i = 0; i < buttons.Length; i++)
+    {
+      if (buttons[i].GetComponent<UIButtonPressEffect>() == null)
+      {
+        buttons[i].gameObject.AddComponent<UIButtonPressEffect>();
       }
     }
   }

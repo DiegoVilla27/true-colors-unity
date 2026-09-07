@@ -45,6 +45,9 @@ public class GameManager : MonoBehaviour
   [SerializeField] private GameObject gameOverPanel;
   [SerializeField] private GameObject pausePanel;
   [SerializeField] private GameObject pauseButton;
+  [SerializeField] private GameObject settingsPanel;
+
+  public GameObject SettingsPanel => settingsPanel;
   #endregion
 
   void Awake()
@@ -122,12 +125,18 @@ public class GameManager : MonoBehaviour
       gameObject.AddComponent<CurrencyManager>();
     }
 
+    if (settingsPanel == null)
+    {
+      var found = GameObject.Find("SettingsPanel");
+      if (found != null) settingsPanel = found;
+    }
+
     var hud = GetComponent<GameHUD>();
     if (hud == null)
     {
       hud = gameObject.AddComponent<GameHUD>();
     }
-    hud.Initialize(scoreText, comboText, highScoreText, finalScoreText, gameOverPanel, pausePanel, pauseButton);
+    hud.Initialize(scoreText, comboText, highScoreText, finalScoreText, gameOverPanel, pausePanel, pauseButton, settingsPanel);
 
     if (GetComponent<OverdriveVFXOverlay>() == null)
     {
@@ -222,10 +231,53 @@ public class GameManager : MonoBehaviour
     SceneFader.LoadScene(SceneManager.GetActiveScene().buildIndex, 0.25f, 0.35f);
   }
 
+  public void OpenSettings()
+  {
+    if (settingsPanel != null)
+    {
+      settingsPanel.SetActive(true);
+    }
+    else
+    {
+      Debug.Log("[GameManager] SettingsPanel abierto.");
+    }
+  }
+
+  public void CloseSettings()
+  {
+    if (settingsPanel != null)
+    {
+      settingsPanel.SetActive(false);
+    }
+  }
+
   public void GoToMainMenu()
   {
+    // 1. Detener el estado de la partida y restaurar escala de tiempo
+    isTimerRunning = false;
     Time.timeScale = 1f;
-    SceneFader.LoadScene("MainMenu", 0.3f, 0.4f);
+
+    // 2. Detener inmediatamente el Spawner y la entrada del jugador
+    var spawner = FindAnyObjectByType<BlockSpawner>();
+    if (spawner != null) spawner.enabled = false;
+
+    var input = FindAnyObjectByType<InputHandler>();
+    if (input != null) input.enabled = false;
+
+    // 3. Detener corrutinas y efectos en ejecución
+    StopAllCoroutines();
+
+    if (OverdriveController.Instance != null)
+    {
+      OverdriveController.Instance.StopAllCoroutines();
+    }
+    if (PowerUpManager.Instance != null)
+    {
+      PowerUpManager.Instance.StopAllCoroutines();
+    }
+
+    // 4. Transición suave y limpia hacia el menú principal
+    SceneFader.LoadScene("MainMenu", 0.25f, 0.35f);
   }
   #endregion
 }
