@@ -45,6 +45,7 @@ public class MainMenuController : MonoBehaviour
   {
     QualitySettings.vSyncCount = 0;
     Application.targetFrameRate = 60;
+    SettingsDatabase.Load();
   }
 
   void Start()
@@ -317,13 +318,21 @@ public class MainMenuController : MonoBehaviour
   {
     if (isLaunching) return;
     HapticFeedback.VibrateCollect();
-    if (optionsPanel != null) optionsPanel.SetActive(true);
+    if (leftMenuShip != null) leftMenuShip.gameObject.SetActive(false);
+    if (rightMenuShip != null) rightMenuShip.gameObject.SetActive(false);
+    if (optionsPanel != null)
+    {
+      optionsPanel.SetActive(true);
+      optionsPanel.transform.SetAsLastSibling();
+    }
     else Debug.Log("[MainMenu] Panel de opciones activado.");
   }
 
   public void CloseOptions()
   {
     HapticFeedback.VibrateCollect();
+    if (leftMenuShip != null) leftMenuShip.gameObject.SetActive(true);
+    if (rightMenuShip != null) rightMenuShip.gameObject.SetActive(true);
     if (optionsPanel != null) optionsPanel.SetActive(false);
   }
 
