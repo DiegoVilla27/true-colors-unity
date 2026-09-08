@@ -340,8 +340,22 @@ public class MainMenuController : MonoBehaviour
   {
     if (isLaunching) return;
     HapticFeedback.VibrateCollect();
-    if (shopPanel != null) shopPanel.SetActive(true);
-    else Debug.Log("[MainMenu] Tienda activada (Próximamente).");
+    if (leftMenuShip != null) leftMenuShip.gameObject.SetActive(false);
+    if (rightMenuShip != null) rightMenuShip.gameObject.SetActive(false);
+    if (shopPanel != null)
+    {
+      shopPanel.SetActive(true);
+      shopPanel.transform.SetAsLastSibling();
+    }
+    else Debug.Log("[MainMenu] Tienda activada.");
+  }
+
+  public void CloseShop()
+  {
+    HapticFeedback.VibrateCollect();
+    if (leftMenuShip != null) leftMenuShip.gameObject.SetActive(true);
+    if (rightMenuShip != null) rightMenuShip.gameObject.SetActive(true);
+    if (shopPanel != null) shopPanel.SetActive(false);
   }
 
   public void OpenLeaderboard()
