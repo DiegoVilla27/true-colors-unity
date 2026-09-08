@@ -348,7 +348,21 @@ public class MainMenuController : MonoBehaviour
   {
     if (isLaunching) return;
     HapticFeedback.VibrateCollect();
-    if (leaderboardPanel != null) leaderboardPanel.SetActive(true);
-    else Debug.Log("[MainMenu] Leaderboard activado (Próximamente).");
+    if (leftMenuShip != null) leftMenuShip.gameObject.SetActive(false);
+    if (rightMenuShip != null) rightMenuShip.gameObject.SetActive(false);
+    if (leaderboardPanel != null)
+    {
+      leaderboardPanel.SetActive(true);
+      leaderboardPanel.transform.SetAsLastSibling();
+    }
+    else Debug.Log("[MainMenu] Leaderboard activado.");
+  }
+
+  public void CloseLeaderboard()
+  {
+    HapticFeedback.VibrateCollect();
+    if (leftMenuShip != null) leftMenuShip.gameObject.SetActive(true);
+    if (rightMenuShip != null) rightMenuShip.gameObject.SetActive(true);
+    if (leaderboardPanel != null) leaderboardPanel.SetActive(false);
   }
 }
