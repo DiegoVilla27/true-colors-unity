@@ -12,7 +12,7 @@ namespace TrueColors.EditorTools
     [InitializeOnLoad]
     public static class RevivePanelAutoSetup
     {
-        private const string PREF_KEY = "RevivePanelSetupApplied_v1";
+        private const string PREF_KEY = "RevivePanelSetupApplied_v2";
 
         static RevivePanelAutoSetup()
         {
@@ -211,7 +211,7 @@ namespace TrueColors.EditorTools
             layout.childForceExpandHeight = false;
 
             // Botón 1: CANCEL (Cruz) -> CloseReviveModal
-            GameObject btnCancelObj = CreateSquareButton("BtnCancel", buttonsObj.transform, btnIconSprite, cancelSprite, 150f, 75f);
+            GameObject btnCancelObj = CreateSquareButton("BtnCancel", buttonsObj.transform, btnIconSprite, cancelSprite, 150f, 80f);
             var btnCancel = btnCancelObj.GetComponent<Button>();
             if (gm != null)
             {
@@ -223,7 +223,7 @@ namespace TrueColors.EditorTools
             }
 
             // Botón 2: CONFIRM (Checkmark) -> ReviveGame
-            GameObject btnConfirmObj = CreateSquareButton("BtnConfirm", buttonsObj.transform, btnIconSprite, confirmSprite, 150f, 75f);
+            GameObject btnConfirmObj = CreateSquareButton("BtnConfirm", buttonsObj.transform, btnIconSprite, confirmSprite, 150f, 80f);
             var btnConfirm = btnConfirmObj.GetComponent<Button>();
             if (gm != null)
             {
@@ -336,7 +336,7 @@ namespace TrueColors.EditorTools
             iconRect.anchorMin = new Vector2(0.5f, 0.5f);
             iconRect.anchorMax = new Vector2(0.5f, 0.5f);
             iconRect.pivot = new Vector2(0.5f, 0.5f);
-            iconRect.anchoredPosition = Vector2.zero;
+            iconRect.anchoredPosition = new Vector2(-3f, 0f);
             iconRect.sizeDelta = new Vector2(iconSize, iconSize);
 
             var iconImg = iconObj.GetComponent<Image>();

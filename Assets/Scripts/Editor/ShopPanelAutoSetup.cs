@@ -11,7 +11,7 @@ namespace TrueColors.EditorTools
     [InitializeOnLoad]
     public static class ShopPanelAutoSetup
     {
-        private const string PREF_KEY = "ShopPanelSetupApplied_v2";
+        private const string PREF_KEY = "ShopPanelSetupApplied_v3";
 
         static ShopPanelAutoSetup()
         {
@@ -143,7 +143,7 @@ namespace TrueColors.EditorTools
             btnMenuRect.anchorMax = new Vector2(0.5f, 0.5f);
             btnMenuRect.pivot = new Vector2(0.5f, 0.5f);
             btnMenuRect.anchoredPosition = new Vector2(0f, -205f);
-            btnMenuRect.sizeDelta = new Vector2(130f, 130f);
+            btnMenuRect.sizeDelta = new Vector2(150f, 150f);
 
             var btnMenuImg = btnMenuObj.GetComponent<Image>();
             btnMenuImg.sprite = btnIconSprite;
@@ -167,8 +167,8 @@ namespace TrueColors.EditorTools
             menuIconRect.anchorMin = new Vector2(0.5f, 0.5f);
             menuIconRect.anchorMax = new Vector2(0.5f, 0.5f);
             menuIconRect.pivot = new Vector2(0.5f, 0.5f);
-            menuIconRect.anchoredPosition = Vector2.zero;
-            menuIconRect.sizeDelta = new Vector2(75f, 75f);
+            menuIconRect.anchoredPosition = new Vector2(-3f, 0f);
+            menuIconRect.sizeDelta = new Vector2(80f, 80f);
 
             var menuIconImg = menuIconObj.GetComponent<Image>();
             menuIconImg.sprite = menuSprite;

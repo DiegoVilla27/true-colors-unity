@@ -12,7 +12,7 @@ namespace TrueColors.EditorTools
     [InitializeOnLoad]
     public static class GameOverPanelAutoSetup
     {
-        private const string PREF_KEY = "GameOverPanelRedesignApplied_v1";
+        private const string PREF_KEY = "GameOverPanelRedesignApplied_v2";
 
         static GameOverPanelAutoSetup()
         {
@@ -304,7 +304,7 @@ namespace TrueColors.EditorTools
             layout.childForceExpandHeight = false;
 
             // 1. BtnMenu -> GoToMainMenu
-            GameObject btnMenuObj = CreateSquareButton("BtnMenu", buttonsObj.transform, btnIconSprite, menuSprite, 150f, 75f);
+            GameObject btnMenuObj = CreateSquareButton("BtnMenu", buttonsObj.transform, btnIconSprite, menuSprite, 150f, 80f);
             var btnMenu = btnMenuObj.GetComponent<Button>();
             if (gm != null)
             {
@@ -312,7 +312,7 @@ namespace TrueColors.EditorTools
             }
 
             // 2. BtnRestart -> RestartGame
-            GameObject btnRestartObj = CreateSquareButton("BtnRestart", buttonsObj.transform, btnIconSprite, playSprite, 150f, 75f);
+            GameObject btnRestartObj = CreateSquareButton("BtnRestart", buttonsObj.transform, btnIconSprite, playSprite, 150f, 80f);
             var btnRestart = btnRestartObj.GetComponent<Button>();
             if (gm != null)
             {
@@ -320,7 +320,7 @@ namespace TrueColors.EditorTools
             }
 
             // 3. BtnRanking -> OpenLeaderboard
-            GameObject btnRankingObj = CreateSquareButton("BtnRanking", buttonsObj.transform, btnIconSprite, rankingSprite, 150f, 75f);
+            GameObject btnRankingObj = CreateSquareButton("BtnRanking", buttonsObj.transform, btnIconSprite, rankingSprite, 150f, 80f);
             var btnRanking = btnRankingObj.GetComponent<Button>();
             if (gm != null)
             {
@@ -399,7 +399,7 @@ namespace TrueColors.EditorTools
             iconRect.anchorMin = new Vector2(0.5f, 0.5f);
             iconRect.anchorMax = new Vector2(0.5f, 0.5f);
             iconRect.pivot = new Vector2(0.5f, 0.5f);
-            iconRect.anchoredPosition = Vector2.zero;
+            iconRect.anchoredPosition = new Vector2(-3f, 0f);
             iconRect.sizeDelta = new Vector2(iconSize, iconSize);
 
             var iconImg = iconObj.GetComponent<Image>();

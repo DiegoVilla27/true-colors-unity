@@ -137,7 +137,16 @@ namespace TrueColors.EditorTools
                 if (menuTrans != null)
                 {
                     var menuRect = menuTrans.GetComponent<RectTransform>();
-                    menuRect.sizeDelta = new Vector2(160f, 160f);
+                    menuRect.sizeDelta = new Vector2(150f, 150f);
+
+                    Transform menuIcon = menuTrans.Find("Icon");
+                    if (menuIcon != null)
+                    {
+                        var iconRect = menuIcon.GetComponent<RectTransform>();
+                        iconRect.sizeDelta = new Vector2(80f, 80f);
+                        iconRect.anchoredPosition = new Vector2(-3f, 0f);
+                    }
+
                     var menuBtn = menuTrans.GetComponent<Button>();
                     if (menuBtn != null && gm != null)
                     {
@@ -155,7 +164,16 @@ namespace TrueColors.EditorTools
                 if (settingsTrans != null)
                 {
                     var settingsRect = settingsTrans.GetComponent<RectTransform>();
-                    settingsRect.sizeDelta = new Vector2(160f, 160f);
+                    settingsRect.sizeDelta = new Vector2(150f, 150f);
+
+                    Transform settingsIcon = settingsTrans.Find("Icon");
+                    if (settingsIcon != null)
+                    {
+                        var iconRect = settingsIcon.GetComponent<RectTransform>();
+                        iconRect.sizeDelta = new Vector2(80f, 80f);
+                        iconRect.anchoredPosition = new Vector2(-3f, 0f);
+                    }
+
                     var settingsBtn = settingsTrans.GetComponent<Button>();
                     if (settingsBtn != null && gm != null)
                     {
@@ -173,7 +191,16 @@ namespace TrueColors.EditorTools
                 if (playTrans != null)
                 {
                     var playRect = playTrans.GetComponent<RectTransform>();
-                    playRect.sizeDelta = new Vector2(160f, 160f);
+                    playRect.sizeDelta = new Vector2(150f, 150f);
+
+                    Transform playIcon = playTrans.Find("Icon");
+                    if (playIcon != null)
+                    {
+                        var iconRect = playIcon.GetComponent<RectTransform>();
+                        iconRect.sizeDelta = new Vector2(80f, 80f);
+                        iconRect.anchoredPosition = new Vector2(-3f, 0f);
+                    }
+
                     var playBtn = playTrans.GetComponent<Button>();
                     if (playBtn != null && gm != null)
                     {

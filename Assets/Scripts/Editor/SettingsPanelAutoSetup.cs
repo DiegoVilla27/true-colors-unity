@@ -11,7 +11,7 @@ namespace TrueColors.EditorTools
     [InitializeOnLoad]
     public static class SettingsPanelAutoSetup
     {
-        private const string PREF_KEY = "SettingsPanelSetupApplied_v9";
+        private const string PREF_KEY = "SettingsPanelSetupApplied_v10";
 
         static SettingsPanelAutoSetup()
         {
@@ -184,8 +184,8 @@ namespace TrueColors.EditorTools
             hLayout.childForceExpandWidth = false;
             hLayout.childForceExpandHeight = false;
 
-            GameObject btnCancelObj = CreateActionButton("BtnCancel", buttonsObj.transform, btnInactiveSprite, cancelSprite, 145f, 75f);
-            GameObject btnConfirmObj = CreateActionButton("BtnConfirm", buttonsObj.transform, btnInactiveSprite, confirmSprite, 145f, 75f);
+            GameObject btnCancelObj = CreateActionButton("BtnCancel", buttonsObj.transform, btnInactiveSprite, cancelSprite, 150f, 80f);
+            GameObject btnConfirmObj = CreateActionButton("BtnConfirm", buttonsObj.transform, btnInactiveSprite, confirmSprite, 150f, 80f);
 
             // 8. Footer (940 x 35, Y: -475)
             GameObject footer = new GameObject("Footer", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
@@ -353,7 +353,7 @@ namespace TrueColors.EditorTools
             btnIconRect.anchorMax = new Vector2(0f, 0.5f);
             btnIconRect.pivot = new Vector2(0f, 0.5f);
             btnIconRect.anchoredPosition = new Vector2(0f, 0f);
-            btnIconRect.sizeDelta = new Vector2(130f, 130f);
+            btnIconRect.sizeDelta = new Vector2(150f, 150f);
 
             var btnIconImg = btnIconObj.GetComponent<Image>();
             btnIconImg.sprite = btnSprite;
@@ -378,8 +378,8 @@ namespace TrueColors.EditorTools
             iconRect.anchorMin = new Vector2(0.5f, 0.5f);
             iconRect.anchorMax = new Vector2(0.5f, 0.5f);
             iconRect.pivot = new Vector2(0.5f, 0.5f);
-            iconRect.anchoredPosition = Vector2.zero;
-            iconRect.sizeDelta = new Vector2(65f, 65f);
+            iconRect.anchoredPosition = new Vector2(-3f, 0f);
+            iconRect.sizeDelta = new Vector2(80f, 80f);
 
             var iconImg = iconObj.GetComponent<Image>();
             iconImg.sprite = iconSprite;
@@ -395,7 +395,7 @@ namespace TrueColors.EditorTools
             labelRect.anchorMin = Vector2.zero;
             labelRect.anchorMax = Vector2.one;
             labelRect.pivot = new Vector2(0f, 0.5f);
-            labelRect.offsetMin = new Vector2(160f, 0f);
+            labelRect.offsetMin = new Vector2(175f, 0f);
             labelRect.offsetMax = new Vector2(-25f, 0f);
 
             var labelTMP = labelObj.GetComponent<TextMeshProUGUI>();
@@ -449,7 +449,7 @@ namespace TrueColors.EditorTools
             iconRect.anchorMin = new Vector2(0.5f, 0.5f);
             iconRect.anchorMax = new Vector2(0.5f, 0.5f);
             iconRect.pivot = new Vector2(0.5f, 0.5f);
-            iconRect.anchoredPosition = Vector2.zero;
+            iconRect.anchoredPosition = new Vector2(-3f, 0f);
             iconRect.sizeDelta = new Vector2(iconSize, iconSize);
 
             var iconImg = iconObj.GetComponent<Image>();
