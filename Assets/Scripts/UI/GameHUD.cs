@@ -36,9 +36,13 @@ public class GameHUD : MonoBehaviour
   [SerializeField] private GameObject pausePanel;
   [SerializeField] private GameObject pauseButton;
   [SerializeField] private GameObject settingsPanel;
+  [SerializeField] private GameObject revivePanel;
   [SerializeField] private TextMeshProUGUI pauseScoreText;
   [SerializeField] private TextMeshProUGUI gameOverScoreText;
   [SerializeField] private TextMeshProUGUI gameOverRecordText;
+
+  public GameObject GameOverPanel => gameOverPanel;
+  public GameObject RevivePanel => revivePanel;
 
   [Header("Juice & Animaciones")]
   [SerializeField] private float scorePunchMultiplier = 1.25f;
@@ -78,9 +82,12 @@ public class GameHUD : MonoBehaviour
     EnsureTimeTextBound();
     EnsurePauseScoreBound();
     EnsureGameOverReferencesBound();
+    EnsureRevivePanelBound();
 
     if (gameOverPanel != null) gameOverPanel.SetActive(false);
     if (pausePanel != null) pausePanel.SetActive(false);
+    if (settingsPanel != null) settingsPanel.SetActive(false);
+    if (revivePanel != null) revivePanel.SetActive(false);
     if (pauseButton != null) pauseButton.SetActive(true);
 
     SubscribeEvents();
@@ -417,6 +424,7 @@ public class GameHUD : MonoBehaviour
         if (pauseButton != null) pauseButton.SetActive(true);
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
         if (settingsPanel != null) settingsPanel.SetActive(false);
+        if (revivePanel != null) revivePanel.SetActive(false);
         break;
 
       case GameManager.GameState.Paused:
@@ -681,6 +689,17 @@ public class GameHUD : MonoBehaviour
     boostPunchRoutine = StartCoroutine(PunchRoutine(boostTypeImage.transform, boostOriginalScale, comboPunchMultiplier, punchDuration * 1.2f));
   }
 
+  public void EnsureRevivePanelBound()
+  {
+    if (revivePanel != null) return;
+    var canvas = GameObject.Find("Canvas");
+    if (canvas != null)
+    {
+      var trans = canvas.transform.Find("Panels/RevivePanel");
+      if (trans != null) revivePanel = trans.gameObject;
+    }
+  }
+
 #if UNITY_EDITOR
   void OnValidate()
   {
@@ -689,6 +708,7 @@ public class GameHUD : MonoBehaviour
     EnsureTimeTextBound();
     EnsurePauseScoreBound();
     EnsureGameOverReferencesBound();
+    EnsureRevivePanelBound();
   }
 #endif
   #endregion

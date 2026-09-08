@@ -126,8 +126,8 @@ namespace TrueColors.EditorTools
             titleTMP.alignment = TextAlignmentOptions.Center;
             titleTMP.color = Color.white;
 
-            // Header -> AdsIcon
-            GameObject adsObj = new GameObject("AdsIcon", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            // Header -> BtnAdsRevive
+            GameObject adsObj = new GameObject("BtnAdsRevive", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button), typeof(UIButtonPressEffect));
             adsObj.transform.SetParent(header.transform, false);
             var adsRect = adsObj.GetComponent<RectTransform>();
             adsRect.anchorMin = new Vector2(1f, 0.5f);
@@ -140,6 +140,13 @@ namespace TrueColors.EditorTools
             adsImg.sprite = adsSprite;
             adsImg.preserveAspect = true;
             adsImg.color = Color.white;
+
+            var adsBtn = adsObj.GetComponent<Button>();
+            adsBtn.navigation = new Navigation { mode = Navigation.Mode.None };
+            if (gm != null)
+            {
+                UnityEventTools.AddPersistentListener(adsBtn.onClick, gm.OpenReviveModal);
+            }
 
             // 6. Content (920 x 650, Y: 0)
             GameObject content = new GameObject("Content", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));

@@ -46,8 +46,10 @@ public class GameManager : MonoBehaviour
   [SerializeField] private GameObject pausePanel;
   [SerializeField] private GameObject pauseButton;
   [SerializeField] private GameObject settingsPanel;
+  [SerializeField] private GameObject revivePanel;
 
   public GameObject SettingsPanel => settingsPanel;
+  public GameObject RevivePanel => revivePanel;
   #endregion
 
   void Awake()
@@ -254,6 +256,84 @@ public class GameManager : MonoBehaviour
   public void OpenLeaderboard()
   {
     Debug.Log("[GameManager] OpenLeaderboard pulsado desde GameOver.");
+  }
+
+  public void OpenReviveModal()
+  {
+    EnsureRevivePanelBound();
+    if (revivePanel != null)
+    {
+      revivePanel.SetActive(true);
+    }
+    else
+    {
+      Debug.LogWarning("[GameManager] RevivePanel no encontrado ni asignado.");
+    }
+  }
+
+  public void CloseReviveModal()
+  {
+    EnsureRevivePanelBound();
+    if (revivePanel != null)
+    {
+      revivePanel.SetActive(false);
+    }
+  }
+
+  public void ReviveGame()
+  {
+    // 1. Cerrar modales
+    CloseReviveModal();
+    if (gameOverPanel != null)
+    {
+      gameOverPanel.SetActive(false);
+    }
+    if (GameHUD.Instance != null && GameHUD.Instance.GameOverPanel != null)
+    {
+      GameHUD.Instance.GameOverPanel.SetActive(false);
+    }
+
+    // 2. Limpiar todos los obstáculos y bloques activos en pantalla
+    var activeBlocks = CollectibleBlock.ActiveBlocks;
+    for (int i = activeBlocks.Count - 1; i >= 0; i--)
+    {
+      if (i >= activeBlocks.Count) continue;
+      var block = activeBlocks[i];
+      if (block != null && block.gameObject.activeInHierarchy)
+      {
+        block.Recycle();
+      }
+    }
+
+    // 3. Reactivar spawner y entrada del jugador
+    var spawner = FindAnyObjectByType<BlockSpawner>();
+    if (spawner != null) spawner.enabled = true;
+
+    var input = FindAnyObjectByType<InputHandler>();
+    if (input != null) input.enabled = true;
+
+    // 4. Restaurar estado de juego y tiempo
+    SetState(GameState.Playing);
+    Time.timeScale = 1f;
+    isTimerRunning = true;
+
+    // 5. Feedback háptico y cámara
+    if (CameraShake.Instance != null)
+    {
+      CameraShake.Instance.Shake(0.2f, 0.15f);
+    }
+    HapticFeedback.VibrateCollect();
+  }
+
+  private void EnsureRevivePanelBound()
+  {
+    if (revivePanel != null) return;
+    var canvas = GameObject.Find("Canvas");
+    if (canvas != null)
+    {
+      var trans = canvas.transform.Find("Panels/RevivePanel");
+      if (trans != null) revivePanel = trans.gameObject;
+    }
   }
 
   public void GoToMainMenu()

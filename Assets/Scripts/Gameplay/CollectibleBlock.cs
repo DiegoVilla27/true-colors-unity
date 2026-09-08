@@ -244,7 +244,7 @@ public class CollectibleBlock : MonoBehaviour
     Recycle();
   }
 
-  private void Recycle()
+  public void Recycle()
   {
     transform.rotation = Quaternion.identity;
     if (BlockPool.Instance != null)
