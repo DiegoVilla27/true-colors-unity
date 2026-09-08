@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
@@ -11,7 +12,7 @@ namespace TrueColors.EditorTools
     [InitializeOnLoad]
     public static class LeaderboardPanelAutoSetup
     {
-        private const string PREF_KEY = "LeaderboardPanelSetupApplied_v2";
+        private const string PREF_KEY = "LeaderboardPanelSetupApplied_v3";
 
         static LeaderboardPanelAutoSetup()
         {
@@ -131,16 +132,95 @@ namespace TrueColors.EditorTools
             contentImg.color = Color.white;
             contentImg.raycastTarget = false;
 
-            // Color exacto HIGHLIGHT: #00739A con Alpha 70 (70 / 255f)
+            // 6. ScrollView Scroleable (860 x 570, Y: 40)
+            GameObject scrollViewObj = new GameObject("ScrollView_Ranking", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(ScrollRect));
+            scrollViewObj.transform.SetParent(content.transform, false);
+            var scrollRectTrans = scrollViewObj.GetComponent<RectTransform>();
+            scrollRectTrans.anchorMin = new Vector2(0.5f, 0.5f);
+            scrollRectTrans.anchorMax = new Vector2(0.5f, 0.5f);
+            scrollRectTrans.pivot = new Vector2(0.5f, 0.5f);
+            scrollRectTrans.anchoredPosition = new Vector2(0f, 40f);
+            scrollRectTrans.sizeDelta = new Vector2(860f, 570f);
+
+            var scrollBgImg = scrollViewObj.GetComponent<Image>();
+            scrollBgImg.color = new Color(0f, 0f, 0f, 0f); // Transparente para ver el hex-grid
+            scrollBgImg.raycastTarget = true; // Permite arrastrar el scroll desde zonas vacías
+
+            var scrollRect = scrollViewObj.GetComponent<ScrollRect>();
+            scrollRect.horizontal = false;
+            scrollRect.vertical = true;
+            scrollRect.movementType = ScrollRect.MovementType.Elastic;
+            scrollRect.elasticity = 0.1f;
+            scrollRect.inertia = true;
+            scrollRect.decelerationRate = 0.135f;
+            scrollRect.scrollSensitivity = 30f;
+
+            // Viewport
+            GameObject viewportObj = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D));
+            viewportObj.transform.SetParent(scrollViewObj.transform, false);
+            var viewportRect = viewportObj.GetComponent<RectTransform>();
+            viewportRect.anchorMin = Vector2.zero;
+            viewportRect.anchorMax = Vector2.one;
+            viewportRect.pivot = new Vector2(0f, 1f);
+            viewportRect.offsetMin = Vector2.zero;
+            viewportRect.offsetMax = Vector2.zero;
+
+            scrollRect.viewport = viewportRect;
+
+            // ScrollContent (Contenedor de Filas con VerticalLayoutGroup y ContentSizeFitter)
+            GameObject scrollContentObj = new GameObject("ScrollContent", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+            scrollContentObj.transform.SetParent(viewportObj.transform, false);
+            var scrollContentRect = scrollContentObj.GetComponent<RectTransform>();
+            scrollContentRect.anchorMin = new Vector2(0f, 1f);
+            scrollContentRect.anchorMax = new Vector2(1f, 1f);
+            scrollContentRect.pivot = new Vector2(0.5f, 1f);
+            scrollContentRect.anchoredPosition = Vector2.zero;
+            scrollContentRect.sizeDelta = Vector2.zero;
+
+            var vLayout = scrollContentObj.GetComponent<VerticalLayoutGroup>();
+            vLayout.padding = new RectOffset(0, 0, 8, 12);
+            vLayout.spacing = 15f;
+            vLayout.childAlignment = TextAnchor.UpperCenter;
+            vLayout.childControlWidth = false;
+            vLayout.childControlHeight = false;
+            vLayout.childForceExpandWidth = false;
+            vLayout.childForceExpandHeight = false;
+
+            var fitter = scrollContentObj.GetComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            scrollRect.content = scrollContentRect;
+
+            // Color HIGHLIGHT: #00739A con Alpha 70 (70 / 255f)
             Color highlightColor = new Color(0f, 115f / 255f, 154f / 255f, 70f / 255f);
 
-            // 6. Crear 4 Filas de Ranking con datos del mockup ("DIEGOVILLA92" y "3200")
-            var row1 = CreateLeaderboardRow("Row_01", content.transform, 260f, highlightSprite, highlightColor, avatarSprite, starSprite, "DIEGOVILLA92", "3200", fontAsset);
-            var row2 = CreateLeaderboardRow("Row_02", content.transform, 125f, highlightSprite, highlightColor, avatarSprite, starSprite, "DIEGOVILLA92", "3200", fontAsset);
-            var row3 = CreateLeaderboardRow("Row_03", content.transform, -10f, highlightSprite, highlightColor, avatarSprite, starSprite, "DIEGOVILLA92", "3200", fontAsset);
-            var row4 = CreateLeaderboardRow("Row_04", content.transform, -145f, highlightSprite, highlightColor, avatarSprite, starSprite, "DIEGOVILLA92", "3200", fontAsset);
+            // 7. Crear Plantilla de Fila (RowTemplate)
+            GameObject rowTemplateObj = CreateRowGameObject("Row_Template", scrollContentObj.transform, highlightSprite, highlightColor, avatarSprite, starSprite, "DIEGOVILLA92", "3200", fontAsset);
+            rowTemplateObj.SetActive(false); // Mantener como plantilla inactiva para instanciación
 
-            // 7. Botón Inferior Central (MENU.png sobre BTN_ACTIVE.png) (Y: -330)
+            // Crear 10 Filas Hardcodeadas Iniciales en el Editor para previsualización inmediata y scroll suave
+            var mockEntries = new List<LeaderboardModal.LeaderboardEntry>
+            {
+                new LeaderboardModal.LeaderboardEntry("DIEGOVILLA92", 3200),
+                new LeaderboardModal.LeaderboardEntry("CYBER_PILOT", 2950),
+                new LeaderboardModal.LeaderboardEntry("NOVA_STRIKER", 2700),
+                new LeaderboardModal.LeaderboardEntry("COSMIC_ACE", 2520),
+                new LeaderboardModal.LeaderboardEntry("STELLAR_FOX", 2310),
+                new LeaderboardModal.LeaderboardEntry("NEON_VORTEX", 2100),
+                new LeaderboardModal.LeaderboardEntry("QUANTUM_GHOST", 1980),
+                new LeaderboardModal.LeaderboardEntry("SHADOW_RUNNER", 1850),
+                new LeaderboardModal.LeaderboardEntry("ASTRO_KNIGHT", 1620),
+                new LeaderboardModal.LeaderboardEntry("HYPER_DRIVE", 1400)
+            };
+
+            for (int i = 0; i < mockEntries.Count; i++)
+            {
+                string rowName = $"Row_{i + 1:00}";
+                CreateRowGameObject(rowName, scrollContentObj.transform, highlightSprite, highlightColor, avatarSprite, starSprite, mockEntries[i].username, mockEntries[i].score.ToString(), fontAsset);
+            }
+
+            // 8. Botón Inferior Central (MENU.png sobre BTN_ICON.png) (Y: -330)
             GameObject btnMenuObj = new GameObject("BtnMenu", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button), typeof(UIButtonPressEffect));
             btnMenuObj.transform.SetParent(content.transform, false);
             var btnMenuRect = btnMenuObj.GetComponent<RectTransform>();
@@ -181,7 +261,7 @@ namespace TrueColors.EditorTools
             menuIconImg.color = Color.white;
             menuIconImg.raycastTarget = false;
 
-            // 8. Footer (940 x 35, Y: -475)
+            // 9. Footer (940 x 35, Y: -475)
             GameObject footer = new GameObject("Footer", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             footer.transform.SetParent(container.transform, false);
             var footerRect = footer.GetComponent<RectTransform>();
@@ -196,19 +276,14 @@ namespace TrueColors.EditorTools
             footerImg.color = Color.white;
             footerImg.raycastTarget = false;
 
-            // 9. Configurar LeaderboardModal
+            // 10. Configurar LeaderboardModal
             var modal = panelObj.GetComponent<LeaderboardModal>();
             if (modal == null) modal = panelObj.AddComponent<LeaderboardModal>();
 
             var so = new SerializedObject(modal);
-            var pRows = so.FindProperty("rows");
-            pRows.arraySize = 4;
-
-            SetRowProperty(pRows.GetArrayElementAtIndex(0), row1);
-            SetRowProperty(pRows.GetArrayElementAtIndex(1), row2);
-            SetRowProperty(pRows.GetArrayElementAtIndex(2), row3);
-            SetRowProperty(pRows.GetArrayElementAtIndex(3), row4);
-
+            so.FindProperty("scrollRect").objectReferenceValue = scrollRect;
+            so.FindProperty("contentContainer").objectReferenceValue = scrollContentRect;
+            so.FindProperty("rowTemplate").objectReferenceValue = rowTemplateObj;
             so.FindProperty("closeButton").objectReferenceValue = btnMenuComp;
             so.ApplyModifiedProperties();
 
@@ -217,7 +292,7 @@ namespace TrueColors.EditorTools
                 UnityEventTools.RemovePersistentListener(btnMenuComp.onClick, 0);
             UnityEventTools.AddPersistentListener(btnMenuComp.onClick, modal.Close);
 
-            // 10. Conectar a MainMenuController
+            // 11. Conectar a MainMenuController
             var menuController = Object.FindAnyObjectByType<MainMenuController>();
             if (menuController != null)
             {
@@ -242,44 +317,28 @@ namespace TrueColors.EditorTools
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
 
-            Debug.Log("<color=#55FF55><b>[LeaderboardPanelTool]</b></color> LeaderboardPanel (Ranking) construido y conectado con éxito en MainMenu.");
+            Debug.Log("<color=#55FF55><b>[LeaderboardPanelTool]</b></color> LeaderboardPanel scroleable con lista hardcodeada y botón BTN_ICON construido exitosamente.");
         }
 
-        private struct RowElements
-        {
-            public Image highlight;
-            public Image avatar;
-            public TextMeshProUGUI username;
-            public TextMeshProUGUI score;
-            public Image star;
-        }
-
-        private static void SetRowProperty(SerializedProperty prop, RowElements elements)
-        {
-            prop.FindPropertyRelative("highlightBg").objectReferenceValue = elements.highlight;
-            prop.FindPropertyRelative("avatarImage").objectReferenceValue = elements.avatar;
-            prop.FindPropertyRelative("usernameText").objectReferenceValue = elements.username;
-            prop.FindPropertyRelative("scoreText").objectReferenceValue = elements.score;
-            prop.FindPropertyRelative("starImage").objectReferenceValue = elements.star;
-        }
-
-        private static RowElements CreateLeaderboardRow(string name, Transform parent, float yPos, Sprite highlightSprite, Color highlightColor, Sprite avatarSprite, Sprite starSprite, string username, string score, TMP_FontAsset font)
+        private static GameObject CreateRowGameObject(string name, Transform parent, Sprite highlightSprite, Color highlightColor, Sprite avatarSprite, Sprite starSprite, string username, string score, TMP_FontAsset font)
         {
             // Contenedor de la Fila (820 x 112)
-            GameObject rowObj = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            GameObject rowObj = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(LayoutElement), typeof(LeaderboardRowItem));
             rowObj.transform.SetParent(parent, false);
 
             var rowRect = rowObj.GetComponent<RectTransform>();
-            rowRect.anchorMin = new Vector2(0.5f, 0.5f);
-            rowRect.anchorMax = new Vector2(0.5f, 0.5f);
-            rowRect.pivot = new Vector2(0.5f, 0.5f);
-            rowRect.anchoredPosition = new Vector2(0f, yPos);
             rowRect.sizeDelta = new Vector2(820f, 112f);
+
+            var layoutElement = rowObj.GetComponent<LayoutElement>();
+            layoutElement.minWidth = 820f;
+            layoutElement.preferredWidth = 820f;
+            layoutElement.minHeight = 112f;
+            layoutElement.preferredHeight = 112f;
 
             var rowImg = rowObj.GetComponent<Image>();
             rowImg.sprite = highlightSprite;
             rowImg.color = highlightColor;
-            rowImg.raycastTarget = false;
+            rowImg.raycastTarget = true; // Permite arrastrar el scroll desde la propia fila
 
             // 1. AVATAR (Izquierda)
             GameObject avatarObj = new GameObject("Avatar", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
@@ -358,14 +417,10 @@ namespace TrueColors.EditorTools
             starImg.color = Color.white;
             starImg.raycastTarget = false;
 
-            return new RowElements
-            {
-                highlight = rowImg,
-                avatar = avatarImg,
-                username = userTMP,
-                score = scoreTMP,
-                star = starImg
-            };
+            var item = rowObj.GetComponent<LeaderboardRowItem>();
+            item.ConfigureReferences(rowImg, avatarImg, userTMP, scoreTMP, starImg);
+
+            return rowObj;
         }
 
         private static Sprite LoadBestSprite(string path)
