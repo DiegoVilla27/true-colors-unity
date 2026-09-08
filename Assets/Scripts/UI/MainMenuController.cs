@@ -230,6 +230,9 @@ public class MainMenuController : MonoBehaviour
       if (thrusterUI != null) thrusterUI.SetBoostActive(true);
     }
 
+    var starfield = FindAnyObjectByType<SpaceStarfield>();
+    if (starfield != null) starfield.SetWarpTarget(true);
+
     // 3. Detectar si son RectTransforms de Canvas UI o Transforms de Mundo
     RectTransform leftRT = leftMenuShip != null ? leftMenuShip.GetComponent<RectTransform>() : null;
     RectTransform rightRT = rightMenuShip != null ? rightMenuShip.GetComponent<RectTransform>() : null;

@@ -123,6 +123,11 @@ public class SpaceStarfield : MonoBehaviour
     targetWarpProgress = 0f;
   }
 
+  public void SetWarpTarget(bool active)
+  {
+    targetWarpProgress = active ? 1f : 0f;
+  }
+
   public void InitializeStarfield()
   {
     Transform existingChild = transform.Find("StarfieldSystem");
@@ -137,7 +142,8 @@ public class SpaceStarfield : MonoBehaviour
       starfieldObj.transform.SetParent(transform, false);
     }
 
-    Camera cam = Camera.main;
+    Camera cam = GetComponent<Camera>();
+    if (cam == null) cam = Camera.main;
     if (cam == null) cam = FindAnyObjectByType<Camera>();
 
     float halfHeight = cam != null ? cam.orthographicSize : 5.0f;
@@ -148,6 +154,7 @@ public class SpaceStarfield : MonoBehaviour
     starfieldObj.transform.localPosition = new Vector3(0f, halfHeight + 0.6f, localZ);
     // Orientar hacia abajo (-Y en 2D)
     starfieldObj.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+    starfieldObj.transform.localScale = Vector3.one;
 
     starfieldParticles = starfieldObj.GetComponent<ParticleSystem>();
     if (starfieldParticles == null)
