@@ -11,7 +11,7 @@ namespace TrueColors.EditorTools
     [InitializeOnLoad]
     public static class SettingsPanelAutoSetup
     {
-        private const string PREF_KEY = "SettingsPanelSetupApplied_v10";
+        private const string PREF_KEY = "SettingsPanelSetupApplied_v11";
 
         static SettingsPanelAutoSetup()
         {
@@ -142,15 +142,15 @@ namespace TrueColors.EditorTools
             titleTMP.color = Color.white;
             titleTMP.raycastTarget = false;
 
-            // 5. Content / Body (940 x 880, Y: -20)
+            // 5. Content / Body (940 x 1000, Y: -80)
             GameObject content = new GameObject("Content", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             content.transform.SetParent(container.transform, false);
             var contentRect = content.GetComponent<RectTransform>();
             contentRect.anchorMin = new Vector2(0.5f, 0.5f);
             contentRect.anchorMax = new Vector2(0.5f, 0.5f);
             contentRect.pivot = new Vector2(0.5f, 0.5f);
-            contentRect.anchoredPosition = new Vector2(0f, -20f);
-            contentRect.sizeDelta = new Vector2(940f, 880f);
+            contentRect.anchoredPosition = new Vector2(0f, -80f);
+            contentRect.sizeDelta = new Vector2(940f, 1000f);
 
             var contentImg = content.GetComponent<Image>();
             contentImg.sprite = bodySprite;
@@ -160,20 +160,20 @@ namespace TrueColors.EditorTools
             // Color exacto especificado para HIGHLIGHT: #00739A con Alpha = 70 (70 / 255f)
             Color highlightColor = new Color(0f, 115f / 255f, 154f / 255f, 70f / 255f);
 
-            // 6. Crear las 4 filas interactivas
-            var rowSound = CreateSettingRow("Row_Sound", content.transform, 260f, highlightSprite, highlightColor, btnActiveSprite, soundActiveIcon, "SOUND", fontAsset);
-            var rowMusic = CreateSettingRow("Row_Music", content.transform, 125f, highlightSprite, highlightColor, btnActiveSprite, musicActiveIcon, "MUSIC", fontAsset);
-            var rowVibration = CreateSettingRow("Row_Vibration", content.transform, -10f, highlightSprite, highlightColor, btnActiveSprite, vibrationActiveIcon, "VIBRATION", fontAsset);
-            var rowNotifications = CreateSettingRow("Row_Notifications", content.transform, -145f, highlightSprite, highlightColor, btnActiveSprite, notificationsActiveIcon, "NOTIFICATIONS", fontAsset);
+            // 6. Crear las 4 filas interactivas con espacio amplio y uniforme (distancia 180px, gap de 30px entre botones)
+            var rowSound = CreateSettingRow("Row_Sound", content.transform, 380f, highlightSprite, highlightColor, btnActiveSprite, soundActiveIcon, "SOUND", fontAsset);
+            var rowMusic = CreateSettingRow("Row_Music", content.transform, 200f, highlightSprite, highlightColor, btnActiveSprite, musicActiveIcon, "MUSIC", fontAsset);
+            var rowVibration = CreateSettingRow("Row_Vibration", content.transform, 20f, highlightSprite, highlightColor, btnActiveSprite, vibrationActiveIcon, "VIBRATION", fontAsset);
+            var rowNotifications = CreateSettingRow("Row_Notifications", content.transform, -160f, highlightSprite, highlightColor, btnActiveSprite, notificationsActiveIcon, "NOTIFICATIONS", fontAsset);
 
-            // 7. Botones de Acción: CANCEL y CONFIRM (Y: -330)
+            // 7. Botones de Acción: CANCEL y CONFIRM (Y: -370)
             GameObject buttonsObj = new GameObject("Buttons", typeof(RectTransform), typeof(HorizontalLayoutGroup));
             buttonsObj.transform.SetParent(content.transform, false);
             var buttonsRect = buttonsObj.GetComponent<RectTransform>();
             buttonsRect.anchorMin = new Vector2(0.5f, 0.5f);
             buttonsRect.anchorMax = new Vector2(0.5f, 0.5f);
             buttonsRect.pivot = new Vector2(0.5f, 0.5f);
-            buttonsRect.anchoredPosition = new Vector2(0f, -330f);
+            buttonsRect.anchoredPosition = new Vector2(0f, -370f);
             buttonsRect.sizeDelta = new Vector2(380f, 150f);
 
             var hLayout = buttonsObj.GetComponent<HorizontalLayoutGroup>();
@@ -187,14 +187,14 @@ namespace TrueColors.EditorTools
             GameObject btnCancelObj = CreateActionButton("BtnCancel", buttonsObj.transform, btnInactiveSprite, cancelSprite, 150f, 80f);
             GameObject btnConfirmObj = CreateActionButton("BtnConfirm", buttonsObj.transform, btnInactiveSprite, confirmSprite, 150f, 80f);
 
-            // 8. Footer (940 x 35, Y: -475)
+            // 8. Footer (940 x 35, Y: -595)
             GameObject footer = new GameObject("Footer", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             footer.transform.SetParent(container.transform, false);
             var footerRect = footer.GetComponent<RectTransform>();
             footerRect.anchorMin = new Vector2(0.5f, 0.5f);
             footerRect.anchorMax = new Vector2(0.5f, 0.5f);
             footerRect.pivot = new Vector2(0.5f, 0.5f);
-            footerRect.anchoredPosition = new Vector2(0f, -475f);
+            footerRect.anchoredPosition = new Vector2(0f, -595f);
             footerRect.sizeDelta = new Vector2(940f, 35f);
 
             var footerImg = footer.GetComponent<Image>();
@@ -337,7 +337,7 @@ namespace TrueColors.EditorTools
             rowRect.anchorMax = new Vector2(0.5f, 0.5f);
             rowRect.pivot = new Vector2(0.5f, 0.5f);
             rowRect.anchoredPosition = new Vector2(0f, yPos);
-            rowRect.sizeDelta = new Vector2(820f, 112f);
+            rowRect.sizeDelta = new Vector2(820f, 150f);
 
             var rowImg = rowObj.GetComponent<Image>();
             rowImg.sprite = highlightSprite;
