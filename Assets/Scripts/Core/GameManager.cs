@@ -168,6 +168,11 @@ public class GameManager : MonoBehaviour
       gameObject.AddComponent<OverdriveVFXOverlay>();
     }
 
+    if (GetComponent<ReviveVFXOverlay>() == null)
+    {
+      gameObject.AddComponent<ReviveVFXOverlay>();
+    }
+
     if (GetComponent<LaneManager>() == null && FindAnyObjectByType<LaneManager>() == null)
     {
       gameObject.AddComponent<LaneManager>();
@@ -227,12 +232,14 @@ public class GameManager : MonoBehaviour
     }
     IsReviveImmune = false;
 
-    // Destruir overlay de destello de revivir si aún existía
-    Canvas canvas = FindAnyObjectByType<Canvas>();
-    if (canvas != null)
+    if (ReviveVFXOverlay.Instance != null)
     {
-      Transform existing = canvas.transform.Find("ReviveScreenFlashOverlay");
-      if (existing != null) Destroy(existing.gameObject);
+      ReviveVFXOverlay.Instance.StopReviveEffect();
+    }
+
+    if (GameHUD.Instance != null)
+    {
+      GameHUD.Instance.ClearAlertText();
     }
 
     SetState(GameState.GameOver);
@@ -429,63 +436,36 @@ public class GameManager : MonoBehaviour
   {
     IsReviveImmune = true;
 
-    // Destello y parpadeo visual en toda la pantalla (no en las naves)
-    CanvasGroup flashOverlay = EnsureReviveFlashOverlay();
-    float elapsed = 0f;
+    // 1. Activar efectos visuales cinemáticos de alta gama (onda expansiva + marco perimetral de escudo)
+    if (ReviveVFXOverlay.Instance != null)
+    {
+      ReviveVFXOverlay.Instance.PlayReviveEffect(duration);
+    }
 
+    // 2. Notificación clara y elegante en el HUD
+    if (GameHUD.Instance != null)
+    {
+      GameHUD.Instance.ShowAlertText("<color=#00E5FF>⚡ SHIELD ACTIVE (2s)</color>");
+    }
+
+    float elapsed = 0f;
     while (elapsed < duration)
     {
       elapsed += Time.unscaledDeltaTime;
-      if (flashOverlay != null)
+      if (elapsed >= 1.0f && GameHUD.Instance != null)
       {
-        // Pulso rítmico elegante y futurista (#00E5FF / cyan escudo)
-        float pulse = Mathf.PingPong(elapsed * 5f, 1f) * 0.35f;
-        flashOverlay.alpha = pulse;
+        GameHUD.Instance.ShowAlertText("<color=#00E5FF>⚡ SHIELD ACTIVE (1s)</color>", false);
       }
       yield return null;
     }
 
-    if (flashOverlay != null)
+    if (GameHUD.Instance != null)
     {
-      flashOverlay.alpha = 0f;
-      Destroy(flashOverlay.gameObject);
+      GameHUD.Instance.ClearAlertText();
     }
 
     IsReviveImmune = false;
     reviveGraceRoutine = null;
-  }
-
-  private CanvasGroup EnsureReviveFlashOverlay()
-  {
-    Canvas canvas = FindAnyObjectByType<Canvas>();
-    if (canvas == null) return null;
-
-    Transform existing = canvas.transform.Find("ReviveScreenFlashOverlay");
-    if (existing != null)
-    {
-      return existing.GetComponent<CanvasGroup>();
-    }
-
-    GameObject obj = new GameObject("ReviveScreenFlashOverlay", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
-    obj.transform.SetParent(canvas.transform, false);
-    obj.transform.SetAsLastSibling(); // Por encima para el efecto de destello en pantalla
-
-    RectTransform rt = obj.GetComponent<RectTransform>();
-    rt.anchorMin = Vector2.zero;
-    rt.anchorMax = Vector2.one;
-    rt.sizeDelta = Vector2.zero;
-    rt.anchoredPosition = Vector2.zero;
-
-    Image img = obj.GetComponent<Image>();
-    img.color = new Color(0.0f, 0.9f, 1.0f, 1f); // Electric Cyan Shield
-    img.raycastTarget = false;
-
-    CanvasGroup cg = obj.GetComponent<CanvasGroup>();
-    cg.alpha = 0f;
-    cg.blocksRaycasts = false;
-    cg.interactable = false;
-
-    return cg;
   }
 
   private void EnsureRevivePanelBound()

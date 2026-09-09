@@ -345,6 +345,21 @@ public class GameHUD : MonoBehaviour
     }
   }
 
+  public void ShowAlertText(string text, bool punch = true)
+  {
+    if (comboText == null) return;
+    comboText.SetText(text);
+    if (punch) TriggerComboPunch();
+  }
+
+  public void ClearAlertText()
+  {
+    if (comboText != null)
+    {
+      comboText.SetText(string.Empty);
+    }
+  }
+
   private void HandleOverdriveEnded()
   {
     if (comboText != null)
