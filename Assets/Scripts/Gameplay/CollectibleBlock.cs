@@ -158,6 +158,18 @@ public class CollectibleBlock : MonoBehaviour
   {
     if (other.TryGetComponent<ShipTarget>(out var ship))
     {
+      // Validar que la nave y la roca se encuentren verdaderamente en el mismo carril horizontal.
+      // La separación entre carriles contiguos es ~0.6f; si la distancia horizontal supera
+      // la mitad del ancho de carril, se trata de una colisión espuria de carril adyacente y se descarta.
+      float maxAllowedLaneDelta = (LaneManager.Instance != null && LaneManager.Instance.LaneColumnWidth > 0f)
+        ? (LaneManager.Instance.LaneColumnWidth * 0.5f)
+        : 0.35f;
+
+      if (Mathf.Abs(transform.position.x - ship.transform.position.x) > maxAllowedLaneDelta)
+      {
+        return;
+      }
+
       // Recolección universal de Power-Ups (cualquier nave puede recogerlos con éxito)
       if (blockType == BlockType.Bomb)
       {

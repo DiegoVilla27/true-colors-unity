@@ -3194,6 +3194,7 @@ GameObject:
   - component: {fileID: 380587374}
   - component: {fileID: 380587376}
   - component: {fileID: 380587375}
+  - component: {fileID: 380587377}
   m_Layer: 5
   m_Name: ComboText
   m_TagString: Untagged
@@ -3320,6 +3321,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 380587373}
   m_CullTransparentMesh: 1
+--- !u!114 &380587377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 380587373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92b4a5fb93e4e4b758cb727c0267d3ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrueColors.UI.SafeArea
+  mode: 0
+  extraTopPadding: 0
+  extraBottomPadding: 0
+  extraLeftPadding: 0
+  extraRightPadding: 0
+  createNotchFiller: 0
+  notchFillerColor: {r: 0, g: 0, b: 0, a: 1}
+  simulateInEditor: 0
+  simulationPreset: 1
+  customSimulatedSafeArea:
+    serializedVersion: 2
+    x: 0
+    y: 102
+    width: 1179
+    height: 2300
+  baseAnchoredPosition: {x: 0, y: -180}
+  baseOffsetMin: {x: 0, y: -230}
+  baseOffsetMax: {x: 0, y: -180}
+  hasCapturedBase: 1
 --- !u!1 &397770914
 GameObject:
   m_ObjectHideFlags: 0
@@ -4793,6 +4825,7 @@ GameObject:
   - component: {fileID: 870484520}
   - component: {fileID: 870484519}
   - component: {fileID: 870484518}
+  - component: {fileID: 870484521}
   m_Layer: 5
   m_Name: BtnPause
   m_TagString: Untagged
@@ -4914,6 +4947,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 870484516}
   m_CullTransparentMesh: 1
+--- !u!114 &870484521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 870484516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92b4a5fb93e4e4b758cb727c0267d3ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrueColors.UI.SafeArea
+  mode: 0
+  extraTopPadding: 0
+  extraBottomPadding: 0
+  extraLeftPadding: 0
+  extraRightPadding: 0
+  createNotchFiller: 0
+  notchFillerColor: {r: 0, g: 0, b: 0, a: 1}
+  simulateInEditor: 0
+  simulationPreset: 1
+  customSimulatedSafeArea:
+    serializedVersion: 2
+    x: 0
+    y: 102
+    width: 1179
+    height: 2300
+  baseAnchoredPosition: {x: -30, y: -150}
+  baseOffsetMin: {x: -150, y: -270}
+  baseOffsetMax: {x: -30, y: -150}
+  hasCapturedBase: 1
 --- !u!1 &884942239
 GameObject:
   m_ObjectHideFlags: 0
@@ -5070,7 +5134,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.45, z: 0}
-  m_LocalScale: {x: 0.45, y: 0.7236424, z: 1}
+  m_LocalScale: {x: 0.45, y: 0.6209356, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1350453492}
@@ -6368,8 +6432,8 @@ PolygonCollider2D:
   m_Points:
     m_Paths:
     - - {x: 0, y: 0.5773587}
-      - {x: -0.5, y: -0.28866667}
-      - {x: 0.5, y: -0.28866667}
+      - {x: -0.38, y: -0.28866667}
+      - {x: 0.38, y: -0.28866667}
   m_UseDelaunayMesh: 1
 --- !u!114 &1263227038
 MonoBehaviour:
@@ -6989,8 +7053,8 @@ PolygonCollider2D:
   m_Points:
     m_Paths:
     - - {x: 0, y: 0.5773587}
-      - {x: -0.5, y: -0.28866667}
-      - {x: 0.5, y: -0.28866667}
+      - {x: -0.38, y: -0.28866667}
+      - {x: 0.38, y: -0.28866667}
   m_UseDelaunayMesh: 1
 --- !u!114 &1350453497
 MonoBehaviour:
@@ -7893,7 +7957,7 @@ ParticleSystem:
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 6.1881094, y: 0.2, z: 1}
+    m_Scale: {x: 6.193818, y: 0.2, z: 1}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -12578,7 +12642,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.45, z: 0}
-  m_LocalScale: {x: 0.45, y: 0.7236424, z: 1}
+  m_LocalScale: {x: 0.45, y: 0.6209356, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1263227033}
@@ -12654,6 +12718,7 @@ GameObject:
   - component: {fileID: 1586557239}
   - component: {fileID: 1586557241}
   - component: {fileID: 1586557240}
+  - component: {fileID: 1586557242}
   m_Layer: 5
   m_Name: Boost
   m_TagString: Untagged
@@ -12678,7 +12743,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 30, y: -150}
+  m_AnchoredPosition: {x: 30, y: -130}
   m_SizeDelta: {x: 120, y: 120}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1586557240
@@ -12719,6 +12784,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1586557238}
   m_CullTransparentMesh: 1
+--- !u!114 &1586557242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1586557238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92b4a5fb93e4e4b758cb727c0267d3ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrueColors.UI.SafeArea
+  mode: 0
+  extraTopPadding: 0
+  extraBottomPadding: 0
+  extraLeftPadding: 0
+  extraRightPadding: 0
+  createNotchFiller: 0
+  notchFillerColor: {r: 0, g: 0, b: 0, a: 1}
+  simulateInEditor: 0
+  simulationPreset: 1
+  customSimulatedSafeArea:
+    serializedVersion: 2
+    x: 0
+    y: 102
+    width: 1179
+    height: 2300
+  baseAnchoredPosition: {x: 30, y: -130}
+  baseOffsetMin: {x: 30, y: -250}
+  baseOffsetMax: {x: 150, y: -130}
+  hasCapturedBase: 1
 --- !u!1 &1670734024
 GameObject:
   m_ObjectHideFlags: 0
@@ -13541,6 +13637,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1942992936}
+  - component: {fileID: 1942992937}
   m_Layer: 5
   m_Name: HUD
   m_TagString: Untagged
@@ -13569,6 +13666,37 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 110}
   m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &1942992937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942992935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92b4a5fb93e4e4b758cb727c0267d3ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrueColors.UI.SafeArea
+  mode: 0
+  extraTopPadding: 0
+  extraBottomPadding: 0
+  extraLeftPadding: 0
+  extraRightPadding: 0
+  createNotchFiller: 1
+  notchFillerColor: {r: 0, g: 0, b: 0, a: 1}
+  simulateInEditor: 0
+  simulationPreset: 1
+  customSimulatedSafeArea:
+    serializedVersion: 2
+    x: 0
+    y: 102
+    width: 1179
+    height: 2300
+  baseAnchoredPosition: {x: 0, y: 0}
+  baseOffsetMin: {x: 0, y: -110}
+  baseOffsetMax: {x: 0, y: 0}
+  hasCapturedBase: 1
 --- !u!1 &1949228639
 GameObject:
   m_ObjectHideFlags: 0

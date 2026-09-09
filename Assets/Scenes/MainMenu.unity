@@ -9615,6 +9615,7 @@ GameObject:
   - component: {fileID: 1063548630}
   - component: {fileID: 1063548632}
   - component: {fileID: 1063548631}
+  - component: {fileID: 1063548633}
   m_Layer: 5
   m_Name: Version
   m_TagString: Untagged
@@ -9741,6 +9742,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1063548629}
   m_CullTransparentMesh: 1
+--- !u!114 &1063548633
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1063548629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92b4a5fb93e4e4b758cb727c0267d3ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrueColors.UI.SafeArea
+  mode: 1
+  extraTopPadding: 0
+  extraBottomPadding: 0
+  extraLeftPadding: 0
+  extraRightPadding: 0
+  createNotchFiller: 0
+  notchFillerColor: {r: 0, g: 0, b: 0, a: 1}
+  simulateInEditor: 0
+  simulationPreset: 1
+  customSimulatedSafeArea:
+    serializedVersion: 2
+    x: 0
+    y: 102
+    width: 1179
+    height: 2300
+  baseAnchoredPosition: {x: 50, y: 50}
+  baseOffsetMin: {x: 50, y: 50}
+  baseOffsetMax: {x: 350, y: 50}
+  hasCapturedBase: 1
 --- !u!1 &1108857053
 GameObject:
   m_ObjectHideFlags: 0

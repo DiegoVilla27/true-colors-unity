@@ -196,6 +196,14 @@ namespace TrueColors.EditorTools
             hudRect.offsetMin = new Vector2(0f, -height);
             hudRect.offsetMax = new Vector2(0f, 0f);
 
+            // Integrar Safe Area para que el Dynamic Island / Notch no tape el HUD
+            var safeArea = hudGo.GetComponent<TrueColors.UI.SafeArea>();
+            if (safeArea == null) safeArea = hudGo.AddComponent<TrueColors.UI.SafeArea>();
+            safeArea.SetMode(TrueColors.UI.SafeAreaMode.TopInset);
+            safeArea.SetNotchFiller(true, Color.black);
+            safeArea.CaptureBaseValues();
+            safeArea.ApplySafeArea();
+
             // 2. Background (Fondo estirado al 100%)
             Transform bgTransform = hudGo.transform.Find("Background");
             GameObject bgGo;
@@ -332,6 +340,18 @@ namespace TrueColors.EditorTools
                     if (propTime != null) propTime.objectReferenceValue = timeTMP;
                 }
                 so.ApplyModifiedProperties();
+            }
+
+            // Asegurar Safe Area en BtnPause
+            Transform pauseTrans = canvas.transform.Find("BtnPause");
+            if (pauseTrans != null)
+            {
+                var pauseSafeArea = pauseTrans.GetComponent<TrueColors.UI.SafeArea>();
+                if (pauseSafeArea == null) pauseSafeArea = pauseTrans.gameObject.AddComponent<TrueColors.UI.SafeArea>();
+                pauseSafeArea.SetMode(TrueColors.UI.SafeAreaMode.TopInset);
+                pauseSafeArea.CaptureBaseValues();
+                pauseSafeArea.ApplySafeArea();
+                EditorUtility.SetDirty(pauseTrans.gameObject);
             }
 
             // Marcar dirty y registrar Undo

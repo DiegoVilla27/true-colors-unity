@@ -37,6 +37,7 @@ public class LaneManager : MonoBehaviour
 
   private float screenHalfWidth;
   private float screenHalfHeight;
+  private float laneColumnWidth = 0.65f;
   private float shipY;
   private float spawnY;
   private float despawnY;
@@ -44,6 +45,7 @@ public class LaneManager : MonoBehaviour
   public float[] LeftLanes => leftLanes;
   public float[] RightLanes => rightLanes;
   public float[] AllLanes => allLanes;
+  public float LaneColumnWidth => laneColumnWidth;
   public float ShipY => shipY;
   public float SpawnY => spawnY;
   public float DespawnY => despawnY;
@@ -91,7 +93,7 @@ public class LaneManager : MonoBehaviour
     float usableSectorWidth = screenHalfWidth - horizontalPadding - centerDividerSpacing;
     if (usableSectorWidth <= 0.5f) usableSectorWidth = 1.5f; // Salvaguarda
 
-    float laneColumnWidth = usableSectorWidth / 3f;
+    laneColumnWidth = usableSectorWidth / 3f;
 
     // 3 Carriles Izquierdos (ordenados de izquierda a derecha: Exterior, Centro, Interior)
     float leftSectorStart = -screenHalfWidth + horizontalPadding;
