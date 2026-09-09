@@ -101,4 +101,32 @@ public class ShipController : MonoBehaviour
         targetPosition = new Vector3(lanePositions[currentLane], posY, 0f);
         transform.position = targetPosition;
     }
+
+    /// <summary>
+    /// Micro-rebote elástico de reactivación cinemática al revivir (sin ocultar ni alterar fuego/láseres).
+    /// </summary>
+    public void TriggerRevivePop()
+    {
+        StopCoroutine(nameof(RevivePopRoutine));
+        StartCoroutine(RevivePopRoutine());
+    }
+
+    private System.Collections.IEnumerator RevivePopRoutine()
+    {
+        float duration = 0.35f;
+        float elapsed = 0f;
+        Vector3 baseScale = Vector3.one;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            // Rebote elástico sutil (escala entre 1.0f y 1.22f con retorno amortiguado)
+            float scaleBounce = 1f + 0.22f * Mathf.Sin(t * Mathf.PI);
+            transform.localScale = baseScale * scaleBounce;
+            yield return null;
+        }
+
+        transform.localScale = baseScale;
+    }
 }

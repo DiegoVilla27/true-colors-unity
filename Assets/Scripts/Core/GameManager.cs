@@ -442,10 +442,10 @@ public class GameManager : MonoBehaviour
       ReviveVFXOverlay.Instance.PlayReviveEffect(duration);
     }
 
-    // 2. Notificación clara y elegante en el HUD
+    // 2. Notificación limpia y elegante en el HUD
     if (GameHUD.Instance != null)
     {
-      GameHUD.Instance.ShowAlertText("<color=#00E5FF>⚡ SHIELD ACTIVE (2s)</color>");
+      GameHUD.Instance.ShowAlertText("<color=#FFFFFF>SHIELD ACTIVE (2s)</color>");
     }
 
     float elapsed = 0f;
@@ -454,7 +454,7 @@ public class GameManager : MonoBehaviour
       elapsed += Time.unscaledDeltaTime;
       if (elapsed >= 1.0f && GameHUD.Instance != null)
       {
-        GameHUD.Instance.ShowAlertText("<color=#00E5FF>⚡ SHIELD ACTIVE (1s)</color>", false);
+        GameHUD.Instance.ShowAlertText("<color=#FFFFFF>SHIELD ACTIVE (1s)</color>", false);
       }
       yield return null;
     }
