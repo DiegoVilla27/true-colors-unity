@@ -37,36 +37,26 @@ public class ReviveVFXOverlay : MonoBehaviour
   }
 
   /// <summary>
-  /// Dispara el efecto cinético puro de revivir (cámara, micro-fade y movimiento elástico).
+  /// Dispara el efecto cinético limpio de revivir (sacudida de cámara, micro-fade y háptico).
+  /// Jamás modifica la escala ni posición de las naves.
   /// </summary>
   public void PlayReviveEffect(float duration = 2.0f)
   {
     CleanUpLegacyOverlays();
 
-    // 1. Dinámica de cámara: Punch Zoom elástico + Sacudida de impacto
+    // 1. Sacudida de cámara suave y limpia
     if (CameraShake.Instance != null)
     {
-      CameraShake.Instance.PunchZoom(0.35f, 0.40f);
-      CameraShake.Instance.Shake(0.25f, 0.22f);
+      CameraShake.Instance.Shake(0.20f, 0.15f);
     }
 
-    // 2. Movimiento elástico de las naves (spring pop cinemático)
-    var ships = FindObjectsByType<ShipController>(FindObjectsSortMode.None);
-    for (int i = 0; i < ships.Length; i++)
-    {
-      if (ships[i] != null)
-      {
-        ships[i].TriggerRevivePop();
-      }
-    }
-
-    // 3. Micro-fade cinemático suave y rápido (0.25s) hacia transparencia absoluta
+    // 2. Micro-fade cinemático suave y rápido (0.25s) hacia transparencia absoluta
     if (SceneFader.Instance != null)
     {
       SceneFader.Instance.StartCoroutine(SceneFader.Instance.FadeAlpha(0.40f, 0f, 0.25f));
     }
 
-    // 4. Feedback háptico
+    // 3. Feedback háptico
     HapticFeedback.VibrateCollect();
   }
 
@@ -80,6 +70,16 @@ public class ReviveVFXOverlay : MonoBehaviour
 
   public void CleanUpLegacyOverlays()
   {
+    // Restaurar escala original (0.6) en caso de que alguna sesión previa la haya modificado
+    var ships = FindObjectsByType<ShipController>(FindObjectsSortMode.None);
+    for (int i = 0; i < ships.Length; i++)
+    {
+      if (ships[i] != null && ships[i].transform.localScale.x > 0.75f)
+      {
+        ships[i].transform.localScale = new Vector3(0.6f, 0.6f, 1f);
+      }
+    }
+
     Canvas canvas = FindAnyObjectByType<Canvas>();
     if (canvas == null) return;
 

@@ -38,24 +38,17 @@ public class OverdriveVFXOverlay : MonoBehaviour
   {
     CleanUpLegacyOverlays();
 
-    // Dinámica cinética de alta velocidad: cámara se amplía y vibra sutilmente
+    // Dinámica cinemática limpia: micro-sacudida de aceleración y respuesta háptica
     if (CameraShake.Instance != null)
     {
-      CameraShake.Instance.SetWarpZoom(true, 0.35f);
-      CameraShake.Instance.SetSpeedRumble(true, 0.035f);
-      CameraShake.Instance.PunchZoom(0.2f, 0.25f);
+      CameraShake.Instance.Shake(0.15f, 0.10f);
     }
     HapticFeedback.VibrateCollect();
   }
 
   private void HandleOverdriveEnded()
   {
-    // Restaurar cámara suavemente a su estado normal
-    if (CameraShake.Instance != null)
-    {
-      CameraShake.Instance.SetWarpZoom(false);
-      CameraShake.Instance.SetSpeedRumble(false);
-    }
+    CleanUpLegacyOverlays();
   }
 
   private void CleanUpLegacyOverlays()
