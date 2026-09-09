@@ -3,6 +3,11 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 
+/// <summary>
+/// Responsabilidad Única (SRP): Controla la cuenta regresiva inicial (3... 2... 1... GO!).
+/// Utiliza tiempo no escalado (WaitForSecondsRealtime) para garantizar que jamás se congele,
+/// incluso si Time.timeScale estaba en 0 tras un Game Over o anuncio.
+/// </summary>
 public class CountdownController : MonoBehaviour
 {
   public static CountdownController Instance { get; private set; }
@@ -20,17 +25,34 @@ public class CountdownController : MonoBehaviour
 
   void Awake()
   {
-    if (Instance != null && Instance != this)
-    {
-      Destroy(gameObject);
-      return;
-    }
     Instance = this;
     IsCountingDown = true;
+
+    // Garantizar que la escala de tiempo siempre se restaure al inicializar
+    Time.timeScale = 1f;
+
+    if (countdownText == null)
+    {
+      var obj = GameObject.Find("CountdownText");
+      if (obj != null) countdownText = obj.GetComponent<TextMeshProUGUI>();
+    }
+
+    if (blockSpawner == null) blockSpawner = FindAnyObjectByType<BlockSpawner>();
+    if (inputHandler == null) inputHandler = FindAnyObjectByType<InputHandler>();
+  }
+
+  void OnDestroy()
+  {
+    if (Instance == this)
+    {
+      Instance = null;
+    }
   }
 
   void Start()
   {
+    Time.timeScale = 1f;
+
     // Bloquea el spawner y los controles mientras dura el conteo
     if (blockSpawner != null) blockSpawner.enabled = false;
     if (inputHandler != null) inputHandler.enabled = false;
@@ -40,21 +62,24 @@ public class CountdownController : MonoBehaviour
 
   private IEnumerator CountdownRoutine()
   {
+    // Garantizar escala de tiempo en ejecución
+    Time.timeScale = 1f;
+
     if (countdownText != null)
     {
       countdownText.gameObject.SetActive(true);
 
       countdownText.text = "3";
-      yield return new WaitForSeconds(stepDuration);
+      yield return new WaitForSecondsRealtime(stepDuration);
 
       countdownText.text = "2";
-      yield return new WaitForSeconds(stepDuration);
+      yield return new WaitForSecondsRealtime(stepDuration);
 
       countdownText.text = "1";
-      yield return new WaitForSeconds(stepDuration);
+      yield return new WaitForSecondsRealtime(stepDuration);
 
       countdownText.text = "GO!";
-      yield return new WaitForSeconds(0.4f);
+      yield return new WaitForSecondsRealtime(0.4f);
 
       countdownText.gameObject.SetActive(false);
     }
@@ -64,6 +89,7 @@ public class CountdownController : MonoBehaviour
     if (inputHandler != null) inputHandler.enabled = true;
 
     IsCountingDown = false;
+    Time.timeScale = 1f;
     OnCountdownFinished?.Invoke();
 
     if (GameManager.Instance != null)

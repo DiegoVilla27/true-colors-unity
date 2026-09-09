@@ -1,0 +1,9 @@
+{
+  "Version": 1,
+  "EnableAutoInit": false,
+  "AndroidAppKey": "",
+  "IOSAppKey": "",
+  "DeclareAdIdPermission": false,
+  "EnableAdapterDebug": false,
+  "EnableIntegrationHelper": false
+}

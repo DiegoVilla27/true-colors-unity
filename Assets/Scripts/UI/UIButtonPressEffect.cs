@@ -63,6 +63,7 @@ public class UIButtonPressEffect : MonoBehaviour, IPointerDownHandler, IPointerU
   public void OnPointerDown(PointerEventData eventData)
   {
     if (selectable != null && !selectable.interactable) return;
+    if (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing) return;
 
     isPressed = true;
     isAnimating = true;
@@ -83,6 +84,11 @@ public class UIButtonPressEffect : MonoBehaviour, IPointerDownHandler, IPointerU
 
   public void OnPointerUp(PointerEventData eventData)
   {
+    if (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing)
+    {
+      Release();
+      return;
+    }
     Release();
   }
 
@@ -106,6 +112,16 @@ public class UIButtonPressEffect : MonoBehaviour, IPointerDownHandler, IPointerU
 
   void Update()
   {
+    // Si un anuncio está en pantalla, congelar interacción y restaurar inmediatamente el estado del botón
+    if (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing)
+    {
+      if (isPressed || isAnimating)
+      {
+        ResetToOriginal();
+      }
+      return;
+    }
+
     // Optimización de rendimiento: no hacer nada en idle para no ensuciar el Canvas
     if (!isAnimating || rectTransform == null) return;
 

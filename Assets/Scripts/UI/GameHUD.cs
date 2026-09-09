@@ -659,6 +659,15 @@ public class GameHUD : MonoBehaviour
   private void AutoWireGameOverButtons()
   {
     if (gameOverPanel == null) return;
+
+    // Actualizar visibilidad de botón de revivir por anuncios según disponibilidad
+    var adsBtn = gameOverPanel.transform.Find("Container/Header/BtnAdsRevive");
+    if (adsBtn != null)
+    {
+      bool canRevive = AdsManager.Instance == null || AdsManager.Instance.CanRevive;
+      adsBtn.gameObject.SetActive(canRevive);
+    }
+
     var buttons = gameOverPanel.GetComponentsInChildren<Button>(true);
     for (int i = 0; i < buttons.Length; i++)
     {

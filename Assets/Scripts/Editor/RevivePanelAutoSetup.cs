@@ -222,7 +222,7 @@ namespace TrueColors.EditorTools
                 UnityEventTools.AddPersistentListener(btnCancel.onClick, gm.CloseReviveModal);
             }
 
-            // Botón 2: CONFIRM (Checkmark) -> ReviveGame
+            // Botón 2: CONFIRM (Checkmark) -> RequestReviveWithAd
             GameObject btnConfirmObj = CreateSquareButton("BtnConfirm", buttonsObj.transform, btnIconSprite, confirmSprite, 150f, 80f);
             var btnConfirm = btnConfirmObj.GetComponent<Button>();
             if (gm != null)
@@ -231,7 +231,7 @@ namespace TrueColors.EditorTools
                 {
                     UnityEventTools.RemovePersistentListener(btnConfirm.onClick, 0);
                 }
-                UnityEventTools.AddPersistentListener(btnConfirm.onClick, gm.ReviveGame);
+                UnityEventTools.AddPersistentListener(btnConfirm.onClick, gm.RequestReviveWithAd);
             }
 
             // 6. Footer (920 x 40, Y: -345)
@@ -299,6 +299,11 @@ namespace TrueColors.EditorTools
                 soHud.ApplyModifiedProperties();
                 EditorUtility.SetDirty(hud);
             }
+
+            // Asegurar que ReviveModal esté presente y vinculado
+            var modal = revivePanelObj.GetComponent<ReviveModal>();
+            if (modal == null) modal = revivePanelObj.AddComponent<ReviveModal>();
+            modal.AutoBindComponents();
 
             // Dejar RevivePanel desactivado por defecto
             revivePanelObj.SetActive(false);

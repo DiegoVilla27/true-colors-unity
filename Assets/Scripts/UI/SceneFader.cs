@@ -125,6 +125,9 @@ public class SceneFader : MonoBehaviour
       yield return null;
     }
 
+    // Restaurar escala de tiempo garantizada para la nueva escena
+    Time.timeScale = 1f;
+
     // Esperar un frame para que la escena inicialice sus componentes
     yield return null;
 

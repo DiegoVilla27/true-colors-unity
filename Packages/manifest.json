@@ -9,6 +9,7 @@
     "com.unity.learn.iet-framework": "6.0.7",
     "com.unity.pipeline": "0.6.0-exp.1",
     "com.unity.render-pipelines.universal": "17.6.0",
+    "com.unity.services.levelplay": "9.5.1",
     "com.unity.ugui": "2.6.0",
     "com.unity.modules.accessibility": "1.0.0",
     "com.unity.modules.adaptiveperformance": "1.0.0",

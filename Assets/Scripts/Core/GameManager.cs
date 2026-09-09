@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 
@@ -29,8 +30,12 @@ public class GameManager : MonoBehaviour
   public bool IsGameOver => currentState == GameState.GameOver;
   public bool IsPaused => currentState == GameState.Paused;
   public bool IsOverdriveActive => OverdriveController.Instance != null && OverdriveController.Instance.IsOverdriveActive;
+  public bool IsReviveImmune { get; private set; } = false;
   public float GameTime => gameTime;
   public bool IsTimerRunning => isTimerRunning;
+
+  private bool hasPendingDeath = false;
+  private Coroutine reviveGraceRoutine;
 
   public event Action<GameState> OnStateChanged;
 
@@ -61,6 +66,9 @@ public class GameManager : MonoBehaviour
     }
     Instance = this;
 
+    // Restaurar escala de tiempo al iniciar/reiniciar
+    Time.timeScale = 1f;
+
     // Desbloquear rendimiento fluido en dispositivos móviles
     QualitySettings.vSyncCount = 0;
     Application.targetFrameRate = 60;
@@ -68,9 +76,21 @@ public class GameManager : MonoBehaviour
     EnsureModularArchitecture();
   }
 
+  void OnDestroy()
+  {
+    if (Instance == this)
+    {
+      Instance = null;
+    }
+  }
+
   void Start()
   {
+    Time.timeScale = 1f;
     gameTime = 0f;
+    hasPendingDeath = false;
+    IsReviveImmune = false;
+    AdsManager.Instance?.ResetRevivesForNewGame();
     SetState(GameState.Playing);
 
     var countdown = GetComponent<CountdownController>() ?? FindAnyObjectByType<CountdownController>();
@@ -126,6 +146,9 @@ public class GameManager : MonoBehaviour
     {
       gameObject.AddComponent<CurrencyManager>();
     }
+
+    // AdsManager se autoinicializa en su propio GameObject independiente [AdsManager]
+    _ = AdsManager.Instance;
 
     if (settingsPanel == null)
     {
@@ -195,9 +218,28 @@ public class GameManager : MonoBehaviour
   public void TriggerGameOver()
   {
     if (IsGameOver) return;
-    if (IsOverdriveActive) return; // Inmune durante Overdrive
+    if (IsOverdriveActive || IsReviveImmune) return; // Inmune durante Overdrive o gracia de Revive
+
+    if (reviveGraceRoutine != null)
+    {
+      StopCoroutine(reviveGraceRoutine);
+      reviveGraceRoutine = null;
+    }
+    IsReviveImmune = false;
+
+    // Destruir overlay de destello de revivir si aún existía
+    Canvas canvas = FindAnyObjectByType<Canvas>();
+    if (canvas != null)
+    {
+      Transform existing = canvas.transform.Find("ReviveScreenFlashOverlay");
+      if (existing != null) Destroy(existing.gameObject);
+    }
 
     SetState(GameState.GameOver);
+    hasPendingDeath = true;
+
+    // Garantizar que la UI esté 100% activa e interactuable al mostrar Game Over
+    AdsManager.Instance?.EnsureUIInteractable();
 
     if (CameraShake.Instance != null)
     {
@@ -229,12 +271,31 @@ public class GameManager : MonoBehaviour
 
   public void RestartGame()
   {
-    Time.timeScale = 1f;
-    SceneFader.LoadScene(SceneManager.GetActiveScene().buildIndex, 0.25f, 0.35f);
+    if (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing) return;
+
+    AdsManager.Instance?.ResetRevivesForNewGame();
+
+    if (hasPendingDeath && AdsManager.Instance != null)
+    {
+      hasPendingDeath = false;
+      AdsManager.Instance.OnDeath(onAdFinished: () =>
+      {
+        Time.timeScale = 1f;
+        SceneFader.LoadScene(SceneManager.GetActiveScene().buildIndex, 0.25f, 0.35f);
+      });
+    }
+    else
+    {
+      hasPendingDeath = false;
+      Time.timeScale = 1f;
+      SceneFader.LoadScene(SceneManager.GetActiveScene().buildIndex, 0.25f, 0.35f);
+    }
   }
 
   public void OpenSettings()
   {
+    if (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing) return;
+
     if (settingsPanel != null)
     {
       settingsPanel.SetActive(true);
@@ -255,14 +316,21 @@ public class GameManager : MonoBehaviour
 
   public void OpenLeaderboard()
   {
+    if (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing) return;
     Debug.Log("[GameManager] OpenLeaderboard pulsado desde GameOver.");
   }
 
   public void OpenReviveModal()
   {
+    if (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing) return;
+
     EnsureRevivePanelBound();
     if (revivePanel != null)
     {
+      var modal = revivePanel.GetComponent<ReviveModal>();
+      if (modal == null) modal = revivePanel.AddComponent<ReviveModal>();
+      modal.UpdateDisplay();
+
       revivePanel.SetActive(true);
     }
     else
@@ -273,6 +341,8 @@ public class GameManager : MonoBehaviour
 
   public void CloseReviveModal()
   {
+    if (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing) return;
+
     EnsureRevivePanelBound();
     if (revivePanel != null)
     {
@@ -280,9 +350,33 @@ public class GameManager : MonoBehaviour
     }
   }
 
+  /// <summary>
+  /// Solicita revivir viendo un anuncio largo a través de AdsManager (máximo 2 por juego).
+  /// </summary>
+  public void RequestReviveWithAd()
+  {
+    if (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing) return;
+
+    if (AdsManager.Instance != null)
+    {
+      AdsManager.Instance.RequestRevive(
+        onSuccess: () => ReviveGame(),
+        onFailed: () => CloseReviveModal()
+      );
+    }
+    else
+    {
+      ReviveGame();
+    }
+  }
+
   public void ReviveGame()
   {
-    // 1. Cerrar modales
+    // 1. Cancelar cualquier muerte pendiente ya que el jugador revivió
+    hasPendingDeath = false;
+    AdsManager.Instance?.EnsureUIInteractable();
+
+    // 2. Cerrar modales y paneles
     CloseReviveModal();
     if (gameOverPanel != null)
     {
@@ -293,36 +387,105 @@ public class GameManager : MonoBehaviour
       GameHUD.Instance.GameOverPanel.SetActive(false);
     }
 
-    // 2. Limpiar todos los obstáculos y bloques activos en pantalla
+    // 3. Limpiar todos los obstáculos y bloques activos en pantalla
     var activeBlocks = CollectibleBlock.ActiveBlocks;
     for (int i = activeBlocks.Count - 1; i >= 0; i--)
     {
-      if (i >= activeBlocks.Count) continue;
-      var block = activeBlocks[i];
-      if (block != null && block.gameObject.activeInHierarchy)
+      if (i < activeBlocks.Count && activeBlocks[i] != null)
       {
-        block.Recycle();
+        activeBlocks[i].Recycle();
       }
     }
 
-    // 3. Reactivar spawner y entrada del jugador
+    // 4. Reactivar spawner con retraso de gracia de 2 segundos
     var spawner = FindAnyObjectByType<BlockSpawner>();
-    if (spawner != null) spawner.enabled = true;
+    if (spawner != null)
+    {
+      spawner.enabled = true;
+      spawner.ResetSpawnDelay(2.0f);
+    }
 
     var input = FindAnyObjectByType<InputHandler>();
     if (input != null) input.enabled = true;
 
-    // 4. Restaurar estado de juego y tiempo
+    // 5. Iniciar inmunidad temporal y parpadeo visual de 2 segundos
+    if (reviveGraceRoutine != null) StopCoroutine(reviveGraceRoutine);
+    reviveGraceRoutine = StartCoroutine(ReviveGraceRoutine(2.0f));
+
+    // 6. Restaurar estado de juego y tiempo
     SetState(GameState.Playing);
     Time.timeScale = 1f;
     isTimerRunning = true;
 
-    // 5. Feedback háptico y cámara
+    // 7. Feedback háptico y cámara
     if (CameraShake.Instance != null)
     {
       CameraShake.Instance.Shake(0.2f, 0.15f);
     }
     HapticFeedback.VibrateCollect();
+  }
+
+  private System.Collections.IEnumerator ReviveGraceRoutine(float duration)
+  {
+    IsReviveImmune = true;
+
+    // Destello y parpadeo visual en toda la pantalla (no en las naves)
+    CanvasGroup flashOverlay = EnsureReviveFlashOverlay();
+    float elapsed = 0f;
+
+    while (elapsed < duration)
+    {
+      elapsed += Time.unscaledDeltaTime;
+      if (flashOverlay != null)
+      {
+        // Pulso rítmico elegante y futurista (#00E5FF / cyan escudo)
+        float pulse = Mathf.PingPong(elapsed * 5f, 1f) * 0.35f;
+        flashOverlay.alpha = pulse;
+      }
+      yield return null;
+    }
+
+    if (flashOverlay != null)
+    {
+      flashOverlay.alpha = 0f;
+      Destroy(flashOverlay.gameObject);
+    }
+
+    IsReviveImmune = false;
+    reviveGraceRoutine = null;
+  }
+
+  private CanvasGroup EnsureReviveFlashOverlay()
+  {
+    Canvas canvas = FindAnyObjectByType<Canvas>();
+    if (canvas == null) return null;
+
+    Transform existing = canvas.transform.Find("ReviveScreenFlashOverlay");
+    if (existing != null)
+    {
+      return existing.GetComponent<CanvasGroup>();
+    }
+
+    GameObject obj = new GameObject("ReviveScreenFlashOverlay", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
+    obj.transform.SetParent(canvas.transform, false);
+    obj.transform.SetAsLastSibling(); // Por encima para el efecto de destello en pantalla
+
+    RectTransform rt = obj.GetComponent<RectTransform>();
+    rt.anchorMin = Vector2.zero;
+    rt.anchorMax = Vector2.one;
+    rt.sizeDelta = Vector2.zero;
+    rt.anchoredPosition = Vector2.zero;
+
+    Image img = obj.GetComponent<Image>();
+    img.color = new Color(0.0f, 0.9f, 1.0f, 1f); // Electric Cyan Shield
+    img.raycastTarget = false;
+
+    CanvasGroup cg = obj.GetComponent<CanvasGroup>();
+    cg.alpha = 0f;
+    cg.blocksRaycasts = false;
+    cg.interactable = false;
+
+    return cg;
   }
 
   private void EnsureRevivePanelBound()
@@ -338,9 +501,10 @@ public class GameManager : MonoBehaviour
 
   public void GoToMainMenu()
   {
-    // 1. Detener el estado de la partida y restaurar escala de tiempo
+    if (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing) return;
+
+    // 1. Detener el estado de la partida
     isTimerRunning = false;
-    Time.timeScale = 1f;
 
     // 2. Detener inmediatamente el Spawner y la entrada del jugador
     var spawner = FindAnyObjectByType<BlockSpawner>();
@@ -361,8 +525,22 @@ public class GameManager : MonoBehaviour
       PowerUpManager.Instance.StopAllCoroutines();
     }
 
-    // 4. Transición suave y limpia hacia el menú principal
-    SceneFader.LoadScene("MainMenu", 0.25f, 0.35f);
+    // 4. Si la partida concluyó en derrota definitiva, procesar muerte para la regla de 5 muertes
+    if (hasPendingDeath && AdsManager.Instance != null)
+    {
+      hasPendingDeath = false;
+      AdsManager.Instance.OnDeath(onAdFinished: () =>
+      {
+        Time.timeScale = 1f;
+        SceneFader.LoadScene("MainMenu", 0.25f, 0.35f);
+      });
+    }
+    else
+    {
+      hasPendingDeath = false;
+      Time.timeScale = 1f;
+      SceneFader.LoadScene("MainMenu", 0.25f, 0.35f);
+    }
   }
   #endregion
 }

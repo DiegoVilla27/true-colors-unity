@@ -120,6 +120,11 @@ public class CollectibleBlock : MonoBehaviour
 
   void Update()
   {
+    if (GameManager.Instance != null && (GameManager.Instance.IsGameOver || (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing)))
+    {
+      return;
+    }
+
     float speedMultiplier = PowerUpManager.Instance != null ? PowerUpManager.Instance.GlobalSpeedMultiplier : 1f;
 
     // Desplazamiento vertical en espacio de mundo para que el giro local no desvíe el carril
@@ -142,12 +147,22 @@ public class CollectibleBlock : MonoBehaviour
 
       if (isLeftSide && blockColor == GameColor.Red)
       {
+        if ((GameManager.Instance != null && GameManager.Instance.IsReviveImmune) || (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing))
+        {
+          Recycle();
+          return;
+        }
         TriggerMissGameOver();
         return;
       }
 
       if (!isLeftSide && blockColor == GameColor.Blue)
       {
+        if ((GameManager.Instance != null && GameManager.Instance.IsReviveImmune) || (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing))
+        {
+          Recycle();
+          return;
+        }
         TriggerMissGameOver();
         return;
       }
@@ -179,6 +194,8 @@ public class CollectibleBlock : MonoBehaviour
   public void HandleShipCollision(ShipTarget ship)
   {
     if (isHandled || ship == null) return;
+    if (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing) return;
+    if (GameManager.Instance != null && GameManager.Instance.IsGameOver) return;
 
     // Validar que la nave y la roca se encuentren en el mismo carril o en trayectoria de intersección válida.
     // La separación entre centros de carriles contiguos es ~0.60f.
@@ -232,7 +249,15 @@ public class CollectibleBlock : MonoBehaviour
     }
     else
     {
-      GameManager.Instance.TriggerGameOver();
+      if (GameManager.Instance != null && GameManager.Instance.IsReviveImmune)
+      {
+        SpawnParticles();
+        NotifyRockDestroyed();
+      }
+      else
+      {
+        GameManager.Instance?.TriggerGameOver();
+      }
     }
 
     Recycle();
@@ -273,7 +298,7 @@ public class CollectibleBlock : MonoBehaviour
 
   private void TriggerMissGameOver()
   {
-    if (GameManager.Instance != null && !GameManager.Instance.IsGameOver)
+    if (GameManager.Instance != null && !GameManager.Instance.IsGameOver && !GameManager.Instance.IsReviveImmune)
     {
       GameManager.Instance.TriggerGameOver();
     }

@@ -81,8 +81,8 @@ public class InputHandler : MonoBehaviour
         }
 #endif
 
-        // Si el juego terminó o está pausado, no procesar controles de naves
-        if (GameManager.Instance != null && (GameManager.Instance.IsGameOver || GameManager.Instance.IsPaused))
+        // Si el juego terminó, está pausado o hay un anuncio mostrándose, no procesar controles de naves
+        if (GameManager.Instance != null && (GameManager.Instance.IsGameOver || GameManager.Instance.IsPaused || (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing)))
         {
             activeTracks.Clear();
 #if UNITY_EDITOR || UNITY_STANDALONE

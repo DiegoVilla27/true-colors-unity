@@ -38,7 +38,7 @@ public class BlockSpawner : MonoBehaviour
 
   void Update()
   {
-    if (GameManager.Instance != null && GameManager.Instance.IsGameOver) return;
+    if (GameManager.Instance != null && (GameManager.Instance.IsGameOver || (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing))) return;
 
     // Progreso temporal de dificultad
     gameTime += Time.deltaTime;
@@ -54,6 +54,15 @@ public class BlockSpawner : MonoBehaviour
       SpawnRandomBlock();
       timer = 0f;
     }
+  }
+
+  /// <summary>
+  /// Reinicia el temporizador de generación con un margen de gracia en segundos
+  /// antes de comenzar a generar bloques (ideal tras revivir o cuenta regresiva).
+  /// </summary>
+  public void ResetSpawnDelay(float delaySeconds = 1.5f)
+  {
+    timer = -Mathf.Max(0f, delaySeconds);
   }
 
   private void SpawnRandomBlock()
