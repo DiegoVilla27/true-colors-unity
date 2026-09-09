@@ -72,8 +72,11 @@ public class CollectibleBlock : MonoBehaviour
     ActiveBlocks.Remove(this);
   }
 
+  private bool isHandled = false;
+
   public void Setup(GameColor newColor, float speed, BlockType type = BlockType.Normal)
   {
+    isHandled = false;
     blockType = type;
     blockColor = newColor;
     fallSpeed = speed;
@@ -158,60 +161,81 @@ public class CollectibleBlock : MonoBehaviour
   {
     if (other.TryGetComponent<ShipTarget>(out var ship))
     {
-      // Validar que la nave y la roca se encuentren verdaderamente en el mismo carril horizontal.
-      // La separación entre carriles contiguos es ~0.6f; si la distancia horizontal supera
-      // la mitad del ancho de carril, se trata de una colisión espuria de carril adyacente y se descarta.
-      float maxAllowedLaneDelta = (LaneManager.Instance != null && LaneManager.Instance.LaneColumnWidth > 0f)
-        ? (LaneManager.Instance.LaneColumnWidth * 0.5f)
-        : 0.35f;
-
-      if (Mathf.Abs(transform.position.x - ship.transform.position.x) > maxAllowedLaneDelta)
-      {
-        return;
-      }
-
-      // Recolección universal de Power-Ups (cualquier nave puede recogerlos con éxito)
-      if (blockType == BlockType.Bomb)
-      {
-        SpawnParticles();
-        HapticFeedback.VibrateCollect();
-        if (PowerUpManager.Instance != null)
-        {
-          PowerUpManager.Instance.ActivateBomb();
-        }
-        NotifyRockDestroyed();
-        Recycle();
-        return;
-      }
-
-      if (blockType == BlockType.SlowMotion)
-      {
-        SpawnParticles();
-        HapticFeedback.VibrateCollect();
-        if (PowerUpManager.Instance != null)
-        {
-          PowerUpManager.Instance.ActivateSlowMotion();
-        }
-        NotifyRockDestroyed();
-        Recycle();
-        return;
-      }
-
-      // Bloques normales
-      if (ship.targetColor == this.blockColor)
-      {
-        SpawnParticles();
-        HapticFeedback.VibrateCollect();
-        GameManager.Instance.AddScore(10);
-        NotifyRockDestroyed();
-      }
-      else
-      {
-        GameManager.Instance.TriggerGameOver();
-      }
-
-      Recycle();
+      HandleShipCollision(ship);
     }
+  }
+
+  private void OnTriggerStay2D(Collider2D other)
+  {
+    if (other.TryGetComponent<ShipTarget>(out var ship))
+    {
+      HandleShipCollision(ship);
+    }
+  }
+
+  /// <summary>
+  /// Procesa la colisión con la nave con validación de carril y soporte para barridos rápidos (swipes).
+  /// </summary>
+  public void HandleShipCollision(ShipTarget ship)
+  {
+    if (isHandled || ship == null) return;
+
+    // Validar que la nave y la roca se encuentren en el mismo carril o en trayectoria de intersección válida.
+    // La separación entre centros de carriles contiguos es ~0.60f.
+    // Con un umbral de 0.85f * ancho de carril (~0.51f), se descartan colisiones con carriles adyacentes no invadidos,
+    // mientras se asegura el 100% de impactos cuando la nave atraviesa o se posa en el carril a gran velocidad.
+    float maxAllowedLaneDelta = (LaneManager.Instance != null && LaneManager.Instance.LaneColumnWidth > 0f)
+      ? (LaneManager.Instance.LaneColumnWidth * 0.85f)
+      : 0.52f;
+
+    if (Mathf.Abs(transform.position.x - ship.transform.position.x) > maxAllowedLaneDelta)
+    {
+      return;
+    }
+
+    isHandled = true;
+
+    // Recolección universal de Power-Ups (cualquier nave puede recogerlos con éxito)
+    if (blockType == BlockType.Bomb)
+    {
+      SpawnParticles();
+      HapticFeedback.VibrateCollect();
+      if (PowerUpManager.Instance != null)
+      {
+        PowerUpManager.Instance.ActivateBomb();
+      }
+      NotifyRockDestroyed();
+      Recycle();
+      return;
+    }
+
+    if (blockType == BlockType.SlowMotion)
+    {
+      SpawnParticles();
+      HapticFeedback.VibrateCollect();
+      if (PowerUpManager.Instance != null)
+      {
+        PowerUpManager.Instance.ActivateSlowMotion();
+      }
+      NotifyRockDestroyed();
+      Recycle();
+      return;
+    }
+
+    // Bloques normales
+    if (ship.targetColor == this.blockColor)
+    {
+      SpawnParticles();
+      HapticFeedback.VibrateCollect();
+      GameManager.Instance.AddScore(10);
+      NotifyRockDestroyed();
+    }
+    else
+    {
+      GameManager.Instance.TriggerGameOver();
+    }
+
+    Recycle();
   }
 
   /// <summary>

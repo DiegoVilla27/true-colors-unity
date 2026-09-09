@@ -18,6 +18,13 @@ public class ShipController : MonoBehaviour
     // 0 = Carril Izquierdo, 1 = Centro, 2 = Carril Derecho
     private int currentLane = 1;
     private Vector3 targetPosition;
+    private readonly Collider2D[] _sweepHits = new Collider2D[8];
+    private ShipTarget _shipTarget;
+
+    void Awake()
+    {
+        _shipTarget = GetComponent<ShipTarget>();
+    }
 
     void Start()
     {
@@ -32,11 +39,31 @@ public class ShipController : MonoBehaviour
 
         // Desplazamiento fluido hacia el carril seleccionado
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * moveSpeed);
+        float currentX = transform.position.x;
+        float deltaX = currentX - previousX;
+
+        // Detección continua por barrido (Sweep Test) para evitar tunneling/esquivar rocas en cambios rápidos de carril
+        if (Mathf.Abs(deltaX) > 0.02f && _shipTarget != null)
+        {
+            float minX = Mathf.Min(previousX, currentX);
+            float maxX = Mathf.Max(previousX, currentX);
+            Vector2 sweepCenter = new Vector2((minX + maxX) * 0.5f, transform.position.y);
+            Vector2 sweepSize = new Vector2((maxX - minX) + 0.4f, 0.6f);
+
+            int hitCount = Physics2D.OverlapBoxNonAlloc(sweepCenter, sweepSize, 0f, _sweepHits);
+            for (int i = 0; i < hitCount; i++)
+            {
+                if (_sweepHits[i] != null && _sweepHits[i].TryGetComponent<CollectibleBlock>(out var block))
+                {
+                    block.HandleShipCollision(_shipTarget);
+                }
+            }
+        }
 
         // Inclinación dinámica proporcional a la velocidad horizontal de desplazamiento
         if (Time.deltaTime > 0f)
         {
-            float velocityX = (transform.position.x - previousX) / Time.deltaTime;
+            float velocityX = deltaX / Time.deltaTime;
             float targetTilt = -Mathf.Clamp(velocityX / 6f, -1f, 1f) * maxTiltAngle;
             Quaternion targetRotation = Quaternion.Euler(0f, 0f, targetTilt);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * tiltSpeed);

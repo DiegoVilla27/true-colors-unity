@@ -155,7 +155,7 @@ namespace TrueColors.EditorTools
             float paddingSides,
             float paddingVertical,
             float spacing,
-            float scoreShiftX = 0f,
+            float scoreShiftX = -8f,
             float scoreShiftY = 0f,
             bool isSilent = false)
         {
@@ -272,7 +272,7 @@ namespace TrueColors.EditorTools
             containerLayout.childForceExpandWidth = true;
             containerLayout.childForceExpandHeight = true;
 
-            // 4. Configurar Columna 1: Time [Icono + Texto]
+            // 4. Configurar Columna 1: Time [Icono + Texto] (desplazado a la izquierda)
             SetupIconTextColumn(
                 containerGo.transform,
                 hudGo.transform,
@@ -282,6 +282,7 @@ namespace TrueColors.EditorTools
                 "00:00",
                 spacing,
                 fontAsset,
+                50f, // Desplaza el bloque de Time 25px hacia la izquierda
                 out TextMeshProUGUI timeTMP
             );
 
@@ -307,6 +308,7 @@ namespace TrueColors.EditorTools
                 "0",
                 spacing,
                 fontAsset,
+                0f,
                 out TextMeshProUGUI rocksTMP
             );
 
@@ -377,6 +379,7 @@ namespace TrueColors.EditorTools
             string defaultText,
             float spacing,
             TMP_FontAsset fontAsset,
+            float paddingRight,
             out TextMeshProUGUI textTMP)
         {
             Transform col = container.Find(columnName) ?? hud.Find(columnName);
@@ -408,7 +411,7 @@ namespace TrueColors.EditorTools
                 layout = colGo.AddComponent<HorizontalLayoutGroup>();
             }
 
-            layout.padding = new RectOffset(0, 0, 0, 0);
+            layout.padding = new RectOffset(0, (int)paddingRight, 0, 0);
             layout.spacing = spacing;
             layout.childAlignment = TextAnchor.MiddleCenter; // Centrado total
             layout.childControlWidth = false;
@@ -553,6 +556,7 @@ namespace TrueColors.EditorTools
             rect.pivot = new Vector2(0.5f, 0.5f);
             rect.offsetMin = new Vector2(shiftX, shiftY);
             rect.offsetMax = new Vector2(shiftX, shiftY);
+            scoreTMP.margin = new Vector4(shiftX, shiftY, -shiftX, -shiftY);
 
             scoreTMP.alignment = TextAlignmentOptions.Center; // Centrado total
             scoreTMP.textWrappingMode = TextWrappingModes.NoWrap;
