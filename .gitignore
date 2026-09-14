@@ -123,3 +123,5 @@ InitTestScene*.unity*
 .Trashes
 ehthumbs.db
 Thumbs.db
+dist
+apk
