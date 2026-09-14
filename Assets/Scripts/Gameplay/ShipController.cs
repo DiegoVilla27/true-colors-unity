@@ -81,6 +81,10 @@ public class ShipController : MonoBehaviour
         }
     }
 
+    public int CurrentLane => currentLane;
+    public Vector3 TargetPosition => targetPosition;
+    public float[] LanePositions => lanePositions;
+
     public void MoveLeft()
     {
         if (currentLane > 0)
@@ -95,6 +99,17 @@ public class ShipController : MonoBehaviour
         if (currentLane < lanePositions.Length - 1)
         {
             currentLane++;
+            targetPosition = new Vector3(lanePositions[currentLane], transform.position.y, 0f);
+        }
+    }
+
+    public void MoveToLane(int laneIndex)
+    {
+        if (lanePositions == null || lanePositions.Length == 0) return;
+        int clamped = Mathf.Clamp(laneIndex, 0, lanePositions.Length - 1);
+        if (clamped != currentLane)
+        {
+            currentLane = clamped;
             targetPosition = new Vector3(lanePositions[currentLane], transform.position.y, 0f);
         }
     }
