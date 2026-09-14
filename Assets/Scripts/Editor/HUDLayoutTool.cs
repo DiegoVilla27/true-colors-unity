@@ -10,10 +10,10 @@ namespace TrueColors.EditorTools
     public class HUDLayoutTool : EditorWindow
     {
         [SerializeField] private float hudHeight = 110f;
-        [SerializeField] private float sidePadding = 20f;
+        [SerializeField] private float sidePadding = 0f;
         [SerializeField] private float verticalPadding = 8f;
-        [SerializeField] private float iconTextSpacing = 12f;
-        [SerializeField] private float scoreOffsetX = 0f;
+        [SerializeField] private float iconTextSpacing = 30f;
+        [SerializeField] private float scoreOffsetX = -25f;
         [SerializeField] private float scoreOffsetY = 0f;
 
         [MenuItem("Tools/HUD/Abrir Ventana de Configuración HUD...")]
@@ -27,7 +27,7 @@ namespace TrueColors.EditorTools
         [MenuItem("Tools/HUD/Ajustar HUD Completo (3 Columnas con Iconos)")]
         public static void QuickAdjustDefault()
         {
-            ApplyHUDSetup(110f, 20f, 8f, 12f, 0f, 0f);
+            ApplyHUDSetup(110f, 0f, 8f, 30f, -25f, 0f);
         }
 
         [MenuItem("Tools/HUD/Score/Mover Score: 6px a la Izquierda")]
@@ -73,7 +73,7 @@ namespace TrueColors.EditorTools
             hudHeight = EditorGUILayout.Slider("Alto del HUD", hudHeight, 90f, 220f);
             sidePadding = EditorGUILayout.Slider("Padding Lateral", sidePadding, 0f, 50f);
             verticalPadding = EditorGUILayout.Slider("Padding Vertical", verticalPadding, 0f, 25f);
-            iconTextSpacing = EditorGUILayout.Slider("Espacio Icono-Texto", iconTextSpacing, 4f, 30f);
+            iconTextSpacing = EditorGUILayout.Slider("Espacio Icono-Texto", iconTextSpacing, 4f, 50f);
 
             GUILayout.Space(10);
             EditorGUILayout.LabelField("Micro-Ajuste Óptico del Score Central", EditorStyles.boldLabel);
@@ -145,17 +145,17 @@ namespace TrueColors.EditorTools
                 var hud = GameObject.Find("HUD");
                 if (hud != null)
                 {
-                    ApplyHUDSetup(110f, 20f, 8f, 12f, 0f, 0f, isSilent: true);
+                    ApplyHUDSetup(110f, 0f, 8f, 30f, -25f, 0f, isSilent: true);
                 }
             };
         }
 
         public static void ApplyHUDSetup(
-            float height,
-            float paddingSides,
-            float paddingVertical,
-            float spacing,
-            float scoreShiftX = -8f,
+            float height = 110f,
+            float paddingSides = 0f,
+            float paddingVertical = 8f,
+            float spacing = 30f,
+            float scoreShiftX = -25f,
             float scoreShiftY = 0f,
             bool isSilent = false)
         {
