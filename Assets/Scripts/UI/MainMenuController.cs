@@ -79,15 +79,12 @@ public class MainMenuController : MonoBehaviour
       }
     }
 
-    // 2. Auto-asegurar que las llamas siempre se rendericen por detrás del casco de las naves
+    // 2. Auto-asegurar que las llamas siempre se rendericen por detrás del casco de las naves (sibling index)
     EnsureFlameRendersBehind(leftMenuShip);
     EnsureFlameRendersBehind(rightMenuShip);
 
-    // 2b. Auto-asegurar ShipSkinApplier e interactividad en las naves del hangar
-    EnsureShipSkinApplier(leftMenuShip);
-    EnsureShipSkinApplier(rightMenuShip);
-    WireShipClickToOpenHangar(leftMenuShip);
-    WireShipClickToOpenHangar(rightMenuShip);
+    // 2b. Auto-asegurar ShipSkinApplier en las naves del hangar
+    EnsureMenuShipSkinAppliers();
 
     // 3. Auto-detectar imagen de fondo del hangar si no está asignada
     if (backgroundImage == null)
@@ -136,102 +133,43 @@ public class MainMenuController : MonoBehaviour
   }
 
   /// <summary>
-  /// Garantiza que la llama del propulsor quede visualmente debajo de la nave,
-  /// tanto si la llama es hija directa de la nave como si son hermanas en un contenedor.
+  /// Garantiza que la llama del propulsor quede visualmente debajo de la nave mediante orden de jerarquía (UGUI).
   /// </summary>
   private void EnsureFlameRendersBehind(Transform shipOrContainer)
   {
     if (shipOrContainer == null) return;
 
-    Transform directFlame = shipOrContainer.Find("Thruster_Flame");
-    if (directFlame != null)
+    Transform siblingFlame = null;
+    Transform siblingShip = null;
+    for (int i = 0; i < shipOrContainer.childCount; i++)
     {
-      // La llama es hija directa de la nave: en UGUI los hijos se dibujan encima del padre.
-      // Solución automática: Canvas local con overrideSorting
-      var shipCanvas = shipOrContainer.GetComponent<Canvas>();
-      if (shipCanvas == null)
-      {
-        shipCanvas = shipOrContainer.gameObject.AddComponent<Canvas>();
-        shipOrContainer.gameObject.AddComponent<GraphicRaycaster>();
-      }
-      shipCanvas.overrideSorting = true;
-      shipCanvas.sortingOrder = 10;
-
-      var flameCanvas = directFlame.GetComponent<Canvas>();
-      if (flameCanvas == null)
-      {
-        flameCanvas = directFlame.gameObject.AddComponent<Canvas>();
-      }
-      flameCanvas.overrideSorting = true;
-      flameCanvas.sortingOrder = 5; // Orden menor = dibujado por detrás
+      var child = shipOrContainer.GetChild(i);
+      if (child.name.Contains("Flame") || child.name.Contains("Thruster")) siblingFlame = child;
+      if (child.name.Contains("Ship") || child.name.Contains("Hull")) siblingShip = child;
     }
-    else
+    if (siblingFlame != null && siblingShip != null)
     {
-      // Es un contenedor con la llama y el casco como hermanos
-      Transform siblingFlame = null;
-      Transform siblingShip = null;
-      for (int i = 0; i < shipOrContainer.childCount; i++)
-      {
-        var child = shipOrContainer.GetChild(i);
-        if (child.name.Contains("Flame") || child.name.Contains("Thruster")) siblingFlame = child;
-        if (child.name.Contains("Ship") || child.name.Contains("Hull")) siblingShip = child;
-      }
-      if (siblingFlame != null && siblingShip != null)
-      {
-        siblingFlame.SetSiblingIndex(0); // Primero = debajo
-        siblingShip.SetSiblingIndex(1);  // Segundo = encima
-      }
+      siblingFlame.SetSiblingIndex(0); // Primero = debajo
+      siblingShip.SetSiblingIndex(1);  // Segundo = encima
     }
   }
 
-  private void EnsureShipSkinApplier(Transform shipOrContainer)
+  private void EnsureMenuShipSkinAppliers()
   {
-    if (shipOrContainer == null) return;
-    var applier = shipOrContainer.GetComponent<TrueColors.Customization.ShipSkinApplier>() ?? shipOrContainer.GetComponentInChildren<TrueColors.Customization.ShipSkinApplier>();
-    if (applier == null)
+    var redShip = GameObject.Find("MenuShip_Red");
+    if (redShip != null && redShip.GetComponent<TrueColors.Customization.ShipSkinApplier>() == null)
     {
-      var img = shipOrContainer.GetComponent<Image>() ?? shipOrContainer.GetComponentInChildren<Image>();
-      if (img != null)
-      {
-        img.gameObject.AddComponent<TrueColors.Customization.ShipSkinApplier>();
-      }
+      redShip.AddComponent<TrueColors.Customization.ShipSkinApplier>();
     }
-  }
 
-  private void WireShipClickToOpenHangar(Transform shipOrContainer)
-  {
-    if (shipOrContainer == null) return;
-    var btn = shipOrContainer.GetComponent<Button>() ?? shipOrContainer.GetComponentInChildren<Button>();
-    if (btn == null)
+    var blueShip = GameObject.Find("MenuShip_Blue");
+    if (blueShip != null && blueShip.GetComponent<TrueColors.Customization.ShipSkinApplier>() == null)
     {
-      var img = shipOrContainer.GetComponent<Image>() ?? shipOrContainer.GetComponentInChildren<Image>();
-      if (img != null)
-      {
-        btn = img.gameObject.AddComponent<Button>();
-        btn.navigation = new Navigation { mode = Navigation.Mode.None };
-        btn.transition = Selectable.Transition.None;
-      }
+      blueShip.AddComponent<TrueColors.Customization.ShipSkinApplier>();
     }
-    if (btn != null)
-    {
-      btn.onClick.RemoveListener(OpenShipsDirectly);
-      btn.onClick.AddListener(OpenShipsDirectly);
-    }
-  }
 
-  public void OpenShipsDirectly()
-  {
-    if (isLaunching) return;
-    HapticFeedback.VibrateCollect();
-    OpenShop();
-    if (shopPanel != null)
-    {
-      var modal = shopPanel.GetComponent<ShopModal>();
-      if (modal != null)
-      {
-        modal.OpenShips();
-      }
-    }
+    // Refrescar inmediatamente
+    TrueColors.Customization.ShipSkinApplier.ApplyToAllInScene();
   }
 
   private void AutoWireButtonPressEffects()
@@ -412,6 +350,8 @@ public class MainMenuController : MonoBehaviour
     if (leftMenuShip != null) leftMenuShip.gameObject.SetActive(true);
     if (rightMenuShip != null) rightMenuShip.gameObject.SetActive(true);
     if (shopPanel != null) shopPanel.SetActive(false);
+
+    TrueColors.Customization.ShipSkinApplier.ApplyToAllInScene();
   }
 
   public void OpenLeaderboard()

@@ -177,6 +177,18 @@ namespace TrueColors.UI
             if (index < 0 || index >= catalog.ships.Count) return;
 
             if (HapticFeedback.IsVibrationEnabled) HapticFeedback.VibrateCollect();
+
+            // Si ya estaba viendo esta nave y está desbloqueada pero no equipada, un segundo toque la equipa
+            if (_currentIndex == index)
+            {
+                var ship = catalog.ships[index];
+                if (ship != null && ShipCustomizationManager.Instance != null && ShipCustomizationManager.Instance.IsShipUnlocked(ship.id))
+                {
+                    EquipCurrentShip();
+                    return;
+                }
+            }
+
             _currentIndex = index;
             RefreshUI();
         }

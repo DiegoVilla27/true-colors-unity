@@ -62,12 +62,12 @@ namespace TrueColors.Customization
         {
             if (_instance != null && _instance != this)
             {
-                Destroy(gameObject);
+                Destroy(this);
                 return;
             }
 
             _instance = this;
-            if (transform.parent == null)
+            if (transform.parent == null && GetComponent<Canvas>() == null)
             {
                 DontDestroyOnLoad(gameObject);
             }
@@ -80,13 +80,17 @@ namespace TrueColors.Customization
             _isPackPurchased = PlayerPrefs.GetInt(PACK_PURCHASED_KEY, 0) == 1;
             _selectedShipId = PlayerPrefs.GetString(SELECTED_SHIP_KEY, "ship_classic");
 
-            // Validar que la nave seleccionada esté realmente desbloqueada
-            if (!IsShipUnlocked(_selectedShipId))
+            // Validar que la nave exista en el catálogo sin forzar reseteo si el pack aún no se marca comprado
+            if (Catalog != null)
             {
-                var defaultShip = Catalog != null ? Catalog.GetDefaultShip() : null;
-                _selectedShipId = defaultShip != null ? defaultShip.id : "ship_classic";
-                PlayerPrefs.SetString(SELECTED_SHIP_KEY, _selectedShipId);
-                PlayerPrefs.Save();
+                var ship = Catalog.GetShipById(_selectedShipId);
+                if (ship == null)
+                {
+                    var defaultShip = Catalog.GetDefaultShip();
+                    _selectedShipId = defaultShip != null ? defaultShip.id : "ship_classic";
+                    PlayerPrefs.SetString(SELECTED_SHIP_KEY, _selectedShipId);
+                    PlayerPrefs.Save();
+                }
             }
         }
 
@@ -97,12 +101,17 @@ namespace TrueColors.Customization
         {
             if (string.IsNullOrEmpty(shipId)) return true;
 
+#if UNITY_EDITOR
+            // En el Editor de Unity, permitir siempre probar cualquier nave sin restricciones de saldo
+            return true;
+#else
             var ship = Catalog != null ? Catalog.GetShipById(shipId) : null;
             if (ship == null) return true;
 
             if (ship.isDefaultUnlocked) return true;
 
             return _isPackPurchased;
+#endif
         }
 
         /// <summary>
@@ -139,10 +148,12 @@ namespace TrueColors.Customization
         }
 
         /// <summary>
-        /// Selecciona y equipa la nave indicada si está desbloqueada, persistiendo la elección localmente.
+        /// Selecciona y equipa la nave indicada si está desbloqueada, persistiendo la elección localmente
+        /// y actualizando de inmediato todas las naves en la escena.
         /// </summary>
         public bool SelectShip(string shipId)
         {
+            if (string.IsNullOrEmpty(shipId)) return false;
             if (!IsShipUnlocked(shipId)) return false;
 
             _selectedShipId = shipId;
@@ -151,6 +162,9 @@ namespace TrueColors.Customization
 
             var ship = GetSelectedShip();
             OnShipSelected?.Invoke(ship);
+
+            // Actualización global inmediata a todas las naves de la escena (MainMenu y MainGame)
+            ShipSkinApplier.ApplyToAllInScene(ship?.sprite);
             return true;
         }
 
@@ -169,10 +183,32 @@ namespace TrueColors.Customization
         public Sprite GetSelectedShipSprite()
         {
             var def = GetSelectedShip();
-            return def != null ? def.sprite : null;
+            if (def != null && def.sprite != null) return def.sprite;
+
+            var defaultShip = Catalog != null ? Catalog.GetDefaultShip() : null;
+            return defaultShip != null ? defaultShip.sprite : null;
         }
 
         #region Debug / Editor Tools
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        /// <summary>
+        /// Método exclusivo de desarrollo: fuerza la selección de cualquier nave
+        /// sin requerir compra previa ni validaciones de tienda, ideal para probar skins en dev.
+        /// </summary>
+        public void ForceSelectShipDev(string shipId)
+        {
+            if (string.IsNullOrEmpty(shipId)) return;
+
+            _selectedShipId = shipId;
+            PlayerPrefs.SetString(SELECTED_SHIP_KEY, _selectedShipId);
+            PlayerPrefs.Save();
+
+            var ship = GetSelectedShip();
+            OnShipSelected?.Invoke(ship);
+            Debug.Log($"<color=#00FFFF><b>[DEV]</b></color> Skin de nave cambiada forzadamente a: {ship?.displayName ?? shipId}");
+        }
+#endif
+
         [ContextMenu("Desbloquear Paquete de Naves")]
         public void DebugUnlockPack()
         {

@@ -661,16 +661,9 @@ namespace TrueColors.EditorTools
                 EditorUtility.SetDirty(blueShipObj);
             }
 
-            // Asegurar que CurrencyManager y ShipCustomizationManager estén disponibles en escena
-            var canvas = GameObject.Find("Canvas");
-            if (canvas != null)
-            {
-                if (canvas.GetComponent<CurrencyManager>() == null)
-                    canvas.AddComponent<CurrencyManager>();
-                if (canvas.GetComponent<ShipCustomizationManager>() == null)
-                    canvas.AddComponent<ShipCustomizationManager>();
-                EditorUtility.SetDirty(canvas);
-            }
+            // Asegurar que los singletons dedicados se inicialicen autónomamente sin ensuciar el Canvas
+            _ = CurrencyManager.Instance;
+            _ = ShipCustomizationManager.Instance;
 
             EditorSceneManager.MarkSceneDirty(mainMenuScene);
             EditorSceneManager.SaveScene(mainMenuScene);

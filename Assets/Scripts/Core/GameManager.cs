@@ -142,10 +142,9 @@ public class GameManager : MonoBehaviour
       gameObject.AddComponent<PowerUpManager>();
     }
 
-    if (GetComponent<CurrencyManager>() == null)
-    {
-      gameObject.AddComponent<CurrencyManager>();
-    }
+    // CurrencyManager y ShipCustomizationManager se autoinicializan en sus propios GameObjects independientes
+    _ = CurrencyManager.Instance;
+    _ = TrueColors.Customization.ShipCustomizationManager.Instance;
 
     // AdsManager se autoinicializa en su propio GameObject independiente [AdsManager]
     _ = AdsManager.Instance;

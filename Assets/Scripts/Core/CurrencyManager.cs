@@ -46,11 +46,11 @@ public class CurrencyManager : MonoBehaviour
   {
     if (_instance != null && _instance != this)
     {
-      Destroy(gameObject);
+      Destroy(this);
       return;
     }
     _instance = this;
-    if (transform.parent == null)
+    if (transform.parent == null && GetComponent<Canvas>() == null)
     {
       DontDestroyOnLoad(gameObject);
     }
