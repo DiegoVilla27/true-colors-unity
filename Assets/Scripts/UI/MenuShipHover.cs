@@ -15,6 +15,9 @@ public class MenuShipHover : MonoBehaviour
   [Tooltip("Frecuencia o velocidad de la oscilación")]
   [SerializeField] private float hoverFrequency = 2.4f;
 
+  public float HoverAmplitude { get => hoverAmplitude; set => hoverAmplitude = value; }
+  public float HoverFrequency { get => hoverFrequency; set => hoverFrequency = value; }
+
   [Tooltip("Desfase de fase inicial para que no oscilen exactamente idénticas")]
   [SerializeField] private float phaseOffset = 0f;
 

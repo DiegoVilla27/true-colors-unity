@@ -5134,7 +5134,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.45, z: 0}
-  m_LocalScale: {x: 0.45, y: 0.72179383, z: 1}
+  m_LocalScale: {x: 0.45, y: 0.58247507, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1350453492}
@@ -6242,6 +6242,7 @@ GameObject:
   - component: {fileID: 1263227036}
   - component: {fileID: 1263227035}
   - component: {fileID: 1263227038}
+  - component: {fileID: 1263227039}
   m_Layer: 0
   m_Name: Ship_Right
   m_TagString: Untagged
@@ -6461,6 +6462,18 @@ MonoBehaviour:
   boostEmissionRate: 40
   normalParticleSpeed: 3.5
   boostParticleSpeed: 7
+--- !u!114 &1263227039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1263227031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f11faa547d04490b7c9129ff327e343, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrueColors.Customization.ShipSkinApplier
 --- !u!1 &1286815427
 GameObject:
   m_ObjectHideFlags: 0
@@ -6863,6 +6876,7 @@ GameObject:
   - component: {fileID: 1350453495}
   - component: {fileID: 1350453494}
   - component: {fileID: 1350453497}
+  - component: {fileID: 1350453498}
   m_Layer: 0
   m_Name: Ship_Left
   m_TagString: Untagged
@@ -7082,6 +7096,18 @@ MonoBehaviour:
   boostEmissionRate: 40
   normalParticleSpeed: 3.5
   boostParticleSpeed: 7
+--- !u!114 &1350453498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1350453490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f11faa547d04490b7c9129ff327e343, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrueColors.Customization.ShipSkinApplier
 --- !u!1 &1358356366
 GameObject:
   m_ObjectHideFlags: 0
@@ -7957,7 +7983,7 @@ ParticleSystem:
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 6.1844664, y: 0.2, z: 1}
+    m_Scale: {x: 6.181214, y: 0.2, z: 1}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -12642,7 +12668,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.45, z: 0}
-  m_LocalScale: {x: 0.45, y: 0.72179383, z: 1}
+  m_LocalScale: {x: 0.45, y: 0.58247507, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1263227033}

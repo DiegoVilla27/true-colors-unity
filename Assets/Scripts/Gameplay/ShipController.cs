@@ -29,6 +29,12 @@ public class ShipController : MonoBehaviour
         {
             transform.localScale = new Vector3(0.6f, 0.6f, 1f);
         }
+
+        // Auto-asegurar que la nave adopte el sprite personalizado seleccionado
+        if (GetComponent<TrueColors.Customization.ShipSkinApplier>() == null)
+        {
+            gameObject.AddComponent<TrueColors.Customization.ShipSkinApplier>();
+        }
     }
 
     void Start()

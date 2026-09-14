@@ -83,6 +83,12 @@ public class MainMenuController : MonoBehaviour
     EnsureFlameRendersBehind(leftMenuShip);
     EnsureFlameRendersBehind(rightMenuShip);
 
+    // 2b. Auto-asegurar ShipSkinApplier e interactividad en las naves del hangar
+    EnsureShipSkinApplier(leftMenuShip);
+    EnsureShipSkinApplier(rightMenuShip);
+    WireShipClickToOpenHangar(leftMenuShip);
+    WireShipClickToOpenHangar(rightMenuShip);
+
     // 3. Auto-detectar imagen de fondo del hangar si no está asignada
     if (backgroundImage == null)
     {
@@ -174,6 +180,56 @@ public class MainMenuController : MonoBehaviour
       {
         siblingFlame.SetSiblingIndex(0); // Primero = debajo
         siblingShip.SetSiblingIndex(1);  // Segundo = encima
+      }
+    }
+  }
+
+  private void EnsureShipSkinApplier(Transform shipOrContainer)
+  {
+    if (shipOrContainer == null) return;
+    var applier = shipOrContainer.GetComponent<TrueColors.Customization.ShipSkinApplier>() ?? shipOrContainer.GetComponentInChildren<TrueColors.Customization.ShipSkinApplier>();
+    if (applier == null)
+    {
+      var img = shipOrContainer.GetComponent<Image>() ?? shipOrContainer.GetComponentInChildren<Image>();
+      if (img != null)
+      {
+        img.gameObject.AddComponent<TrueColors.Customization.ShipSkinApplier>();
+      }
+    }
+  }
+
+  private void WireShipClickToOpenHangar(Transform shipOrContainer)
+  {
+    if (shipOrContainer == null) return;
+    var btn = shipOrContainer.GetComponent<Button>() ?? shipOrContainer.GetComponentInChildren<Button>();
+    if (btn == null)
+    {
+      var img = shipOrContainer.GetComponent<Image>() ?? shipOrContainer.GetComponentInChildren<Image>();
+      if (img != null)
+      {
+        btn = img.gameObject.AddComponent<Button>();
+        btn.navigation = new Navigation { mode = Navigation.Mode.None };
+        btn.transition = Selectable.Transition.None;
+      }
+    }
+    if (btn != null)
+    {
+      btn.onClick.RemoveListener(OpenShipsDirectly);
+      btn.onClick.AddListener(OpenShipsDirectly);
+    }
+  }
+
+  public void OpenShipsDirectly()
+  {
+    if (isLaunching) return;
+    HapticFeedback.VibrateCollect();
+    OpenShop();
+    if (shopPanel != null)
+    {
+      var modal = shopPanel.GetComponent<ShopModal>();
+      if (modal != null)
+      {
+        modal.OpenShips();
       }
     }
   }

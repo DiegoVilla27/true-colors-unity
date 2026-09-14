@@ -8,7 +8,25 @@ using UnityEngine;
 /// </summary>
 public class CurrencyManager : MonoBehaviour
 {
-  public static CurrencyManager Instance { get; private set; }
+  private static CurrencyManager _instance;
+  public static CurrencyManager Instance
+  {
+    get
+    {
+      if (_instance == null)
+      {
+        _instance = FindAnyObjectByType<CurrencyManager>();
+        if (_instance == null)
+        {
+          GameObject go = new GameObject("[CurrencyManager]");
+          _instance = go.AddComponent<CurrencyManager>();
+          DontDestroyOnLoad(go);
+        }
+      }
+      return _instance;
+    }
+    private set => _instance = value;
+  }
 
   public const string ROCKS_KEY = "TrueColors_TotalRocks";
 
@@ -26,12 +44,16 @@ public class CurrencyManager : MonoBehaviour
 
   void Awake()
   {
-    if (Instance != null && Instance != this)
+    if (_instance != null && _instance != this)
     {
       Destroy(gameObject);
       return;
     }
-    Instance = this;
+    _instance = this;
+    if (transform.parent == null)
+    {
+      DontDestroyOnLoad(gameObject);
+    }
 
     LoadCurrency();
   }
@@ -108,6 +130,9 @@ public class CurrencyManager : MonoBehaviour
   #region Debug / Editor Tools
   [ContextMenu("Añadir 50 Rocas")]
   public void DebugAdd50Rocks() => AddRocks(50);
+
+  [ContextMenu("Añadir 10.000 Rocas")]
+  public void DebugAdd10000Rocks() => AddRocks(10000);
 
   [ContextMenu("Resetear Saldo de Rocas")]
   public void DebugResetRocks()

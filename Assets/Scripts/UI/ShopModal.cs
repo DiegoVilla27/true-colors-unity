@@ -8,6 +8,10 @@ using UnityEngine.UI;
 /// </summary>
 public class ShopModal : MonoBehaviour
 {
+    [Header("Subvistas")]
+    [SerializeField] private GameObject mainCategoryView;
+    [SerializeField] private GameObject shipsView;
+
     [Header("Botones de Opciones")]
     [SerializeField] private Button noAdsButton;
     [SerializeField] private Button shipsButton;
@@ -18,6 +22,17 @@ public class ShopModal : MonoBehaviour
     void Awake()
     {
         WireButtons();
+    }
+
+    void OnEnable()
+    {
+        ShowMainCategories();
+    }
+
+    public void ShowMainCategories()
+    {
+        if (mainCategoryView != null) mainCategoryView.SetActive(true);
+        if (shipsView != null) shipsView.SetActive(false);
     }
 
     private void WireButtons()
@@ -69,18 +84,40 @@ public class ShopModal : MonoBehaviour
             HapticFeedback.VibrateCollect();
         }
 
-        // TODO: Integrar apertura del hangar de naves y compras con rocas/moneda más adelante.
-        Debug.Log("[ShopModal] Opción 'SHIPS' seleccionada.");
+        if (shipsView != null)
+        {
+            if (mainCategoryView != null) mainCategoryView.SetActive(false);
+            shipsView.SetActive(true);
+        }
+        else
+        {
+            Debug.Log("[ShopModal] Opción 'SHIPS' seleccionada.");
+        }
     }
 
     /// <summary>
-    /// Cierra el modal de la Tienda y regresa al menú principal.
+    /// Cierra la vista de Naves y regresa a la vista de categorías de la Tienda.
+    /// </summary>
+    public void CloseShipsView()
+    {
+        if (shipsView != null) shipsView.SetActive(false);
+        if (mainCategoryView != null) mainCategoryView.SetActive(true);
+    }
+
+    /// <summary>
+    /// Cierra el modal de la Tienda o regresa al menú principal.
     /// </summary>
     public void Close()
     {
         if (HapticFeedback.IsVibrationEnabled)
         {
             HapticFeedback.VibrateCollect();
+        }
+
+        if (shipsView != null && shipsView.activeSelf)
+        {
+            CloseShipsView();
+            return;
         }
 
         var menuController = UnityEngine.Object.FindAnyObjectByType<MainMenuController>();
