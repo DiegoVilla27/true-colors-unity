@@ -73,7 +73,7 @@ namespace TrueColors.EditorTools
 
                     safeArea.SetMode(SafeAreaMode.TopInset);
                     safeArea.SetNotchFiller(false, Color.black);
-                    safeArea.SetBaseAnchoredPosition(new Vector2(30f, -130f));
+                    safeArea.SetBaseValues(new Vector2(30f, -150f), new Vector2(30f, -270f), new Vector2(150f, -150f));
                     safeArea.ApplySafeArea();
                     EditorUtility.SetDirty(boostTrans.gameObject);
                     Debug.Log("<color=#55FF55><b>[SafeAreaTool]</b></color> SafeArea configurado en MainGame -> Boost.");
