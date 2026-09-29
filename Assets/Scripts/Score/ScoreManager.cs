@@ -78,6 +78,7 @@ public class ScoreManager : MonoBehaviour
       PlayerPrefs.SetInt(HIGH_SCORE_KEY, highScore);
       PlayerPrefs.Save();
       OnHighScoreChanged?.Invoke(highScore);
+      TrueColors.Leaderboard.LeaderboardManager.Instance.SubmitScore(highScore);
     }
 
     // Comprobar umbral para Overdrive

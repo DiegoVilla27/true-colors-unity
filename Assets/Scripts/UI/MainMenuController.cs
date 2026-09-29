@@ -52,6 +52,17 @@ public class MainMenuController : MonoBehaviour
   {
     AutoWireButtonPressEffects();
     AutoDetectMenuReferences();
+
+    if (leaderboardPanel != null) leaderboardPanel.SetActive(false);
+    if (optionsPanel != null) optionsPanel.SetActive(false);
+    if (shopPanel != null) shopPanel.SetActive(false);
+
+    if (PlayerPrefs.GetInt("TC_OpenLeaderboardOnMenu", 0) == 1)
+    {
+      PlayerPrefs.SetInt("TC_OpenLeaderboardOnMenu", 0);
+      PlayerPrefs.Save();
+      OpenLeaderboard();
+    }
   }
 
   private void AutoDetectMenuReferences()

@@ -22,13 +22,67 @@ public class LeaderboardRowItem : MonoBehaviour
     public Image StarImage => starImage;
 
     /// <summary>
-    /// Configura los datos de usuario y puntuación en la fila.
+    /// Configura los datos de rango, usuario, puntuación, estrella e indicador de jugador local.
+    /// </summary>
+    public void SetData(int rank, string username, int score, bool isLocalPlayer = false, Sprite star = null, Sprite avatar = null)
+    {
+        string rankPrefix = rank > 0 ? $"{rank}. " : string.Empty;
+        if (usernameText != null)
+        {
+            usernameText.text = $"{rankPrefix}{username}";
+            if (isLocalPlayer)
+            {
+                usernameText.color = new Color(1f, 0.9f, 0.2f, 1f); // Amarillo dorado para el jugador local
+            }
+            else
+            {
+                usernameText.color = Color.white;
+            }
+        }
+
+        if (scoreText != null)
+        {
+            scoreText.text = score.ToString();
+        }
+
+        if (starImage != null)
+        {
+            if (star != null)
+            {
+                starImage.sprite = star;
+                starImage.enabled = true;
+            }
+            else
+            {
+                starImage.enabled = false;
+            }
+        }
+
+        if (avatar != null && avatarImage != null)
+        {
+            avatarImage.sprite = avatar;
+        }
+
+        if (highlightBg != null)
+        {
+            highlightBg.enabled = isLocalPlayer;
+        }
+    }
+
+    /// <summary>
+    /// Sobrecarga compatible con versiones anteriores sin estrella.
+    /// </summary>
+    public void SetData(int rank, string username, int score, bool isLocalPlayer, Sprite avatar)
+    {
+        SetData(rank, username, score, isLocalPlayer, null, avatar);
+    }
+
+    /// <summary>
+    /// Sobrecarga compatible con versiones anteriores sin rango.
     /// </summary>
     public void SetData(string username, int score, Sprite avatar = null)
     {
-        if (usernameText != null) usernameText.text = username;
-        if (scoreText != null) scoreText.text = score.ToString();
-        if (avatar != null && avatarImage != null) avatarImage.sprite = avatar;
+        SetData(0, username, score, false, null, avatar);
     }
 
     public void ConfigureReferences(Image highlight, Image avatar, TextMeshProUGUI user, TextMeshProUGUI score, Image star)

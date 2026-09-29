@@ -12,7 +12,7 @@ namespace TrueColors.EditorTools
     [InitializeOnLoad]
     public static class LeaderboardPanelAutoSetup
     {
-        private const string PREF_KEY = "LeaderboardPanelSetupApplied_v4";
+        private const string PREF_KEY = "LeaderboardPanelSetupApplied_v7";
 
         static LeaderboardPanelAutoSetup()
         {
@@ -21,9 +21,18 @@ namespace TrueColors.EditorTools
                 if (!EditorPrefs.GetBool(PREF_KEY, false))
                 {
                     SetupLeaderboardPanel();
+                    ResetLocalScore();
                     EditorPrefs.SetBool(PREF_KEY, true);
                 }
             };
+        }
+
+        [MenuItem("Tools/Leaderboard/Reiniciar Récord Local (PlayerPrefs)")]
+        public static void ResetLocalScore()
+        {
+            PlayerPrefs.DeleteKey("TrueColors_HighScore");
+            PlayerPrefs.Save();
+            Debug.Log("<color=#55FF55><b>[Leaderboard]</b></color> Récord local (TrueColors_HighScore) reiniciado a 0 exitosamente.");
         }
 
         [MenuItem("Tools/Leaderboard/Construir y Conectar LeaderboardPanel en MainMenu")]
@@ -68,7 +77,10 @@ namespace TrueColors.EditorTools
             var footerSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/container/FOOTER.png");
             var highlightSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/container/HIGHLIGHT.png");
             var avatarSprite = LoadBestSprite("Assets/Art/Sprites/container/AVATAR.png");
-            var starSprite = LoadBestSprite("Assets/Art/Sprites/stars/STAR_FULL.png");
+            var starFullSprite = LoadBestSprite("Assets/Art/Sprites/stars/STAR_FULL.png");
+            var starHalfSprite = LoadBestSprite("Assets/Art/Sprites/stars/STAR_HALF.png");
+            var starEmptySprite = LoadBestSprite("Assets/Art/Sprites/stars/STAR_EMPTY.png");
+            var starSprite = starFullSprite;
             var btnIconSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/btns/BTN_ICON.png");
             var menuSprite = LoadBestSprite("Assets/Art/Sprites/icons/MENU.png");
             var fontAsset = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/Fonts/Ethnocentric-Regular SDF.asset");
@@ -197,28 +209,7 @@ namespace TrueColors.EditorTools
 
             // 7. Crear Plantilla de Fila (RowTemplate)
             GameObject rowTemplateObj = CreateRowGameObject("Row_Template", scrollContentObj.transform, highlightSprite, highlightColor, avatarSprite, starSprite, "DIEGOVILLA92", "3200", fontAsset);
-            rowTemplateObj.SetActive(false); // Mantener como plantilla inactiva para instanciación
-
-            // Crear 10 Filas Hardcodeadas Iniciales en el Editor para previsualización inmediata y scroll suave
-            var mockEntries = new List<LeaderboardModal.LeaderboardEntry>
-            {
-                new LeaderboardModal.LeaderboardEntry("DIEGOVILLA92", 3200),
-                new LeaderboardModal.LeaderboardEntry("CYBER_PILOT", 2950),
-                new LeaderboardModal.LeaderboardEntry("NOVA_STRIKER", 2700),
-                new LeaderboardModal.LeaderboardEntry("COSMIC_ACE", 2520),
-                new LeaderboardModal.LeaderboardEntry("STELLAR_FOX", 2310),
-                new LeaderboardModal.LeaderboardEntry("NEON_VORTEX", 2100),
-                new LeaderboardModal.LeaderboardEntry("QUANTUM_GHOST", 1980),
-                new LeaderboardModal.LeaderboardEntry("SHADOW_RUNNER", 1850),
-                new LeaderboardModal.LeaderboardEntry("ASTRO_KNIGHT", 1620),
-                new LeaderboardModal.LeaderboardEntry("HYPER_DRIVE", 1400)
-            };
-
-            for (int i = 0; i < mockEntries.Count; i++)
-            {
-                string rowName = $"Row_{i + 1:00}";
-                CreateRowGameObject(rowName, scrollContentObj.transform, highlightSprite, highlightColor, avatarSprite, starSprite, mockEntries[i].username, mockEntries[i].score.ToString(), fontAsset);
-            }
+            rowTemplateObj.SetActive(false); // Mantener como plantilla inactiva para instanciación limpia por LeaderboardModal
 
             // 8. Botón Inferior Central (MENU.png sobre BTN_ICON.png) (Y: -330)
             GameObject btnMenuObj = new GameObject("BtnMenu", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button), typeof(UIButtonPressEffect));
@@ -285,6 +276,9 @@ namespace TrueColors.EditorTools
             so.FindProperty("contentContainer").objectReferenceValue = scrollContentRect;
             so.FindProperty("rowTemplate").objectReferenceValue = rowTemplateObj;
             so.FindProperty("closeButton").objectReferenceValue = btnMenuComp;
+            so.FindProperty("starFullSprite").objectReferenceValue = starFullSprite;
+            so.FindProperty("starHalfSprite").objectReferenceValue = starHalfSprite;
+            so.FindProperty("starEmptySprite").objectReferenceValue = starEmptySprite;
             so.ApplyModifiedProperties();
 
             // Enlazar evento OnClick al botón de cerrar
