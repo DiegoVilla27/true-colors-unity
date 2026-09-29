@@ -91,6 +91,7 @@ public class ShipController : MonoBehaviour
         {
             currentLane--;
             targetPosition = new Vector3(lanePositions[currentLane], transform.position.y, 0f);
+            TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.ShipMove);
         }
     }
 
@@ -100,6 +101,7 @@ public class ShipController : MonoBehaviour
         {
             currentLane++;
             targetPosition = new Vector3(lanePositions[currentLane], transform.position.y, 0f);
+            TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.ShipMove);
         }
     }
 
@@ -111,6 +113,7 @@ public class ShipController : MonoBehaviour
         {
             currentLane = clamped;
             targetPosition = new Vector3(lanePositions[currentLane], transform.position.y, 0f);
+            TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.ShipMove);
         }
     }
 

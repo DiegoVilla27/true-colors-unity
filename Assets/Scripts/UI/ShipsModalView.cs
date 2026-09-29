@@ -218,6 +218,7 @@ namespace TrueColors.UI
             if (manager.SelectShip(ship.id))
             {
                 if (HapticFeedback.IsVibrationEnabled) HapticFeedback.VibrateCollect();
+                TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.BlockMatch);
                 ShowFeedback("EQUIPPED!", new Color(0.2f, 1f, 0.4f, 1f));
                 RefreshUI();
             }
@@ -241,6 +242,7 @@ namespace TrueColors.UI
             if (manager.TryBuyPack())
             {
                 if (HapticFeedback.IsVibrationEnabled) HapticFeedback.VibrateCollect();
+                TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.PackPurchased);
                 ShowFeedback("PACK UNLOCKED! ALL SHIPS READY", new Color(0.2f, 1f, 0.4f, 1f));
 
                 // Auto equipar la nave actualmente visible

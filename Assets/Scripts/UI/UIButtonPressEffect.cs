@@ -80,6 +80,8 @@ public class UIButtonPressEffect : MonoBehaviour, IPointerDownHandler, IPointerU
     {
       HapticFeedback.VibrateCollect();
     }
+
+    TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.UIClick);
   }
 
   public void OnPointerUp(PointerEventData eventData)

@@ -63,6 +63,8 @@ public class MainMenuController : MonoBehaviour
       PlayerPrefs.Save();
       OpenLeaderboard();
     }
+
+    TrueColors.Audio.AudioManager.Instance?.PlayMusic(TrueColors.Audio.MusicType.Menu, 0.8f);
   }
 
   private void AutoDetectMenuReferences()
@@ -238,6 +240,8 @@ public class MainMenuController : MonoBehaviour
 
     var starfield = FindAnyObjectByType<SpaceStarfield>();
     if (starfield != null) starfield.SetWarpTarget(true);
+
+    TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.RocketLaunch);
 
     // 3. Detectar si son RectTransforms de Canvas UI o Transforms de Mundo
     RectTransform leftRT = leftMenuShip != null ? leftMenuShip.GetComponent<RectTransform>() : null;
