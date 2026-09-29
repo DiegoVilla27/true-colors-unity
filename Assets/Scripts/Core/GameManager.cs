@@ -323,7 +323,10 @@ public class GameManager : MonoBehaviour
   public void OpenLeaderboard()
   {
     if (AdsManager.Instance != null && AdsManager.Instance.IsAdShowing) return;
-    Debug.Log("[GameManager] OpenLeaderboard pulsado desde GameOver.");
+    HapticFeedback.VibrateCollect();
+    PlayerPrefs.SetInt("TC_OpenLeaderboardOnMenu", 1);
+    PlayerPrefs.Save();
+    GoToMainMenu();
   }
 
   public void OpenReviveModal()
