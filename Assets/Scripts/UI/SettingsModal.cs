@@ -68,6 +68,7 @@ public class SettingsModal : MonoBehaviour
         {
             if (isSoundActive == value) return;
             isSoundActive = value;
+            TrueColors.Audio.AudioManager.Instance?.SetSoundActive(isSoundActive);
             UpdateSoundUI();
             SaveToDatabase();
         }
@@ -80,6 +81,7 @@ public class SettingsModal : MonoBehaviour
         {
             if (isMusicActive == value) return;
             isMusicActive = value;
+            TrueColors.Audio.AudioManager.Instance?.SetMusicActive(isMusicActive);
             UpdateMusicUI();
             SaveToDatabase();
         }
@@ -189,7 +191,7 @@ public class SettingsModal : MonoBehaviour
     public void ToggleSound()
     {
         isSoundActive = !isSoundActive;
-        // TODO: Lógica adicional de sonido más adelante
+        TrueColors.Audio.AudioManager.Instance?.SetSoundActive(isSoundActive);
         UpdateSoundUI();
         SaveToDatabase();
         if (isVibrationActive) HapticFeedback.VibrateCollect();
@@ -199,7 +201,7 @@ public class SettingsModal : MonoBehaviour
     public void ToggleMusic()
     {
         isMusicActive = !isMusicActive;
-        // TODO: Lógica adicional de música más adelante
+        TrueColors.Audio.AudioManager.Instance?.SetMusicActive(isMusicActive);
         UpdateMusicUI();
         SaveToDatabase();
         if (isVibrationActive) HapticFeedback.VibrateCollect();

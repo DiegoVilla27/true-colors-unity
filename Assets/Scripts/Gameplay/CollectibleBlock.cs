@@ -217,6 +217,7 @@ public class CollectibleBlock : MonoBehaviour
     {
       SpawnParticles();
       HapticFeedback.VibrateCollect();
+      TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.PowerUpBomb);
       if (PowerUpManager.Instance != null)
       {
         PowerUpManager.Instance.ActivateBomb();
@@ -230,6 +231,7 @@ public class CollectibleBlock : MonoBehaviour
     {
       SpawnParticles();
       HapticFeedback.VibrateCollect();
+      TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.PowerUpSlowMo);
       if (PowerUpManager.Instance != null)
       {
         PowerUpManager.Instance.ActivateSlowMotion();
@@ -244,6 +246,7 @@ public class CollectibleBlock : MonoBehaviour
     {
       SpawnParticles();
       HapticFeedback.VibrateCollect();
+      TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.BlockMatch);
       GameManager.Instance.AddScore(10);
       NotifyRockDestroyed();
     }
@@ -256,6 +259,7 @@ public class CollectibleBlock : MonoBehaviour
       }
       else
       {
+        TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.GameOver);
         GameManager.Instance?.TriggerGameOver();
       }
     }

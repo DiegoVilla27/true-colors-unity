@@ -70,15 +70,19 @@ public class CountdownController : MonoBehaviour
       countdownText.gameObject.SetActive(true);
 
       countdownText.text = "3";
+      TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.UIClick);
       yield return new WaitForSecondsRealtime(stepDuration);
 
       countdownText.text = "2";
+      TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.UIClick);
       yield return new WaitForSecondsRealtime(stepDuration);
 
       countdownText.text = "1";
+      TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.UIClick);
       yield return new WaitForSecondsRealtime(stepDuration);
 
       countdownText.text = "GO!";
+      TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.BlockMatch);
       yield return new WaitForSecondsRealtime(0.4f);
 
       countdownText.gameObject.SetActive(false);

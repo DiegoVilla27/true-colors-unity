@@ -102,6 +102,8 @@ public class GameManager : MonoBehaviour
     {
       isTimerRunning = false;
     }
+
+    TrueColors.Audio.AudioManager.Instance?.PlayMusic(TrueColors.Audio.MusicType.Gameplay, 0.8f);
   }
 
   void Update()
@@ -252,6 +254,8 @@ public class GameManager : MonoBehaviour
       CameraShake.Instance.Shake(0.35f, 0.3f);
     }
     HapticFeedback.VibrateGameOver();
+    TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.GameOver);
+    TrueColors.Audio.AudioManager.Instance?.StopMusic(0.8f);
     Time.timeScale = 0f;
   }
 
@@ -426,12 +430,14 @@ public class GameManager : MonoBehaviour
     Time.timeScale = 1f;
     isTimerRunning = true;
 
-    // 7. Feedback háptico y cámara
+    // 7. Feedback háptico, audio y cámara
     if (CameraShake.Instance != null)
     {
       CameraShake.Instance.Shake(0.2f, 0.15f);
     }
     HapticFeedback.VibrateCollect();
+    TrueColors.Audio.AudioManager.Instance?.PlayMusic(TrueColors.Audio.MusicType.Gameplay, 0.5f);
+    TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.OverdriveActivate);
   }
 
   private System.Collections.IEnumerator ReviveGraceRoutine(float duration)

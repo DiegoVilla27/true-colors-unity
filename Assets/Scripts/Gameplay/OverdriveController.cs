@@ -66,6 +66,7 @@ public class OverdriveController : MonoBehaviour
     }
 
     OnOverdriveStarted?.Invoke();
+    TrueColors.Audio.AudioManager.Instance?.PlaySFX(TrueColors.Audio.SFXType.OverdriveActivate);
 
     // Convierte inmediatamente los bloques que ya estén cayendo en pantalla
     ConvertExistingBlocksToTargetColors();
