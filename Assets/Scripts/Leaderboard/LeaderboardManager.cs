@@ -20,7 +20,7 @@ namespace TrueColors.Leaderboard
                 if (instance == null)
                 {
                     instance = FindAnyObjectByType<LeaderboardManager>();
-                    if (instance == null)
+                    if (instance == null && Application.isPlaying)
                     {
                         GameObject obj = new GameObject("[LeaderboardManager]");
                         instance = obj.AddComponent<LeaderboardManager>();
@@ -50,7 +50,10 @@ namespace TrueColors.Leaderboard
             }
 
             instance = this;
-            DontDestroyOnLoad(gameObject);
+            if (Application.isPlaying && transform.parent == null)
+            {
+                DontDestroyOnLoad(gameObject);
+            }
 
             InitializeService();
         }

@@ -16,7 +16,7 @@ public class CurrencyManager : MonoBehaviour
       if (_instance == null)
       {
         _instance = FindAnyObjectByType<CurrencyManager>();
-        if (_instance == null)
+        if (_instance == null && Application.isPlaying)
         {
           GameObject go = new GameObject("[CurrencyManager]");
           _instance = go.AddComponent<CurrencyManager>();
@@ -50,7 +50,7 @@ public class CurrencyManager : MonoBehaviour
       return;
     }
     _instance = this;
-    if (transform.parent == null && GetComponent<Canvas>() == null)
+    if (Application.isPlaying && transform.parent == null && GetComponent<Canvas>() == null)
     {
       DontDestroyOnLoad(gameObject);
     }
@@ -96,6 +96,9 @@ public class CurrencyManager : MonoBehaviour
 
     OnSessionRocksChanged?.Invoke(sessionRocks);
     OnTotalRocksChanged?.Invoke(totalRocks);
+
+    // Agendar sincronización con debounce para optimizar peticiones de red
+    TrueColors.CloudSave.CloudSaveManager.Instance?.ScheduleRocksSync();
   }
 
   /// <summary>
@@ -110,7 +113,20 @@ public class CurrencyManager : MonoBehaviour
     SaveCurrency();
 
     OnTotalRocksChanged?.Invoke(totalRocks);
+
+    // Sincronizar inmediatamente tras una transacción en tienda
+    _ = TrueColors.CloudSave.CloudSaveManager.Instance?.ForceSaveRocksToCloudAsync(totalRocks);
     return true;
+  }
+
+  /// <summary>
+  /// Sincroniza y restaura el saldo de rocas desde UGS Cloud Save.
+  /// </summary>
+  public void SyncFromCloud(int cloudRocks)
+  {
+    totalRocks = cloudRocks;
+    SaveCurrency();
+    OnTotalRocksChanged?.Invoke(totalRocks);
   }
 
   /// <summary>

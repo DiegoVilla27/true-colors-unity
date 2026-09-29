@@ -27,12 +27,36 @@ namespace TrueColors.EditorTools
             };
         }
 
-        [MenuItem("Tools/Leaderboard/Reiniciar Récord Local (PlayerPrefs)")]
+        [MenuItem("Tools/Leaderboard/Reiniciar Récord y Datos Locales (PlayerPrefs)")]
         public static void ResetLocalScore()
         {
             PlayerPrefs.DeleteKey("TrueColors_HighScore");
+            PlayerPrefs.DeleteKey(CurrencyManager.ROCKS_KEY);
+            PlayerPrefs.DeleteKey("TrueColors_PlayerCallsign");
+            PlayerPrefs.DeleteKey("TC_OpenLeaderboardOnMenu");
+
+            if (ScoreManager.Instance != null)
+            {
+                ScoreManager.Instance.ResetHighScore();
+            }
+
+            if (CurrencyManager.Instance != null)
+            {
+                CurrencyManager.Instance.SyncFromCloud(0);
+            }
+
+            try
+            {
+                if (Unity.Services.Authentication.AuthenticationService.Instance != null)
+                {
+                    Unity.Services.Authentication.AuthenticationService.Instance.SignOut(true);
+                    Unity.Services.Authentication.AuthenticationService.Instance.ClearSessionToken();
+                }
+            }
+            catch {}
+
             PlayerPrefs.Save();
-            Debug.Log("<color=#55FF55><b>[Leaderboard]</b></color> Récord local (TrueColors_HighScore) reiniciado a 0 exitosamente.");
+            Debug.Log("<color=#55FF55><b>[Leaderboard]</b></color> Récord local, rocas y sesión de usuario reiniciados a 0 exitosamente.");
         }
 
         [MenuItem("Tools/Leaderboard/Construir y Conectar LeaderboardPanel en MainMenu")]

@@ -180,6 +180,10 @@ namespace TrueColors.EditorTools
                 {
                     ShipCustomizationManager.Instance.DebugUnlockPack();
                 }
+                if (Application.isPlaying && TrueColors.CloudSave.CloudSaveManager.Instance != null)
+                {
+                    _ = TrueColors.CloudSave.CloudSaveManager.Instance.SaveShipPackPurchasedAsync(true);
+                }
                 Debug.Log("<color=#00FFFF>[DEV]</color> Paquete de 4 naves marcado como comprado.");
             }
 
@@ -190,6 +194,10 @@ namespace TrueColors.EditorTools
                 if (Application.isPlaying && ShipCustomizationManager.Instance != null)
                 {
                     ShipCustomizationManager.Instance.DebugResetPack();
+                }
+                if (Application.isPlaying && TrueColors.CloudSave.CloudSaveManager.Instance != null)
+                {
+                    _ = TrueColors.CloudSave.CloudSaveManager.Instance.SaveShipPackPurchasedAsync(false);
                 }
                 Debug.Log("<color=#00FFFF>[DEV]</color> Paquete restablecido a bloqueado.");
             }
