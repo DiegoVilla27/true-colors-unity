@@ -96,6 +96,9 @@ public class CurrencyManager : MonoBehaviour
 
     OnSessionRocksChanged?.Invoke(sessionRocks);
     OnTotalRocksChanged?.Invoke(totalRocks);
+
+    // Agendar sincronización con debounce para optimizar peticiones de red
+    TrueColors.CloudSave.CloudSaveManager.Instance?.ScheduleRocksSync();
   }
 
   /// <summary>
@@ -110,7 +113,20 @@ public class CurrencyManager : MonoBehaviour
     SaveCurrency();
 
     OnTotalRocksChanged?.Invoke(totalRocks);
+
+    // Sincronizar inmediatamente tras una transacción en tienda
+    _ = TrueColors.CloudSave.CloudSaveManager.Instance?.ForceSaveRocksToCloudAsync(totalRocks);
     return true;
+  }
+
+  /// <summary>
+  /// Sincroniza y restaura el saldo de rocas desde UGS Cloud Save.
+  /// </summary>
+  public void SyncFromCloud(int cloudRocks)
+  {
+    totalRocks = cloudRocks;
+    SaveCurrency();
+    OnTotalRocksChanged?.Invoke(totalRocks);
   }
 
   /// <summary>

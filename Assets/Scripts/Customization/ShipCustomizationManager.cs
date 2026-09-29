@@ -143,8 +143,30 @@ namespace TrueColors.Customization
             PlayerPrefs.SetInt(PACK_PURCHASED_KEY, 1);
             PlayerPrefs.Save();
 
+            if (TrueColors.CloudSave.CloudSaveManager.Instance != null)
+            {
+                _ = TrueColors.CloudSave.CloudSaveManager.Instance.SaveShipPackPurchasedAsync(true);
+                int currentTotal = CurrencyManager.Instance != null ? CurrencyManager.Instance.TotalRocks : PlayerPrefs.GetInt(CurrencyManager.ROCKS_KEY, 0);
+                _ = TrueColors.CloudSave.CloudSaveManager.Instance.ForceSaveRocksToCloudAsync(currentTotal);
+            }
+
             OnPackPurchased?.Invoke();
             return true;
+        }
+
+        /// <summary>
+        /// Aplica el estado de compra del paquete restaurado desde UGS Cloud Save.
+        /// </summary>
+        public void ApplyCloudPurchasedState(bool purchased)
+        {
+            _isPackPurchased = purchased;
+            PlayerPrefs.SetInt(PACK_PURCHASED_KEY, purchased ? 1 : 0);
+            PlayerPrefs.Save();
+
+            if (purchased)
+            {
+                OnPackPurchased?.Invoke();
+            }
         }
 
         /// <summary>
@@ -159,6 +181,11 @@ namespace TrueColors.Customization
             _selectedShipId = shipId;
             PlayerPrefs.SetString(SELECTED_SHIP_KEY, _selectedShipId);
             PlayerPrefs.Save();
+
+            if (TrueColors.CloudSave.CloudSaveManager.Instance != null)
+            {
+                _ = TrueColors.CloudSave.CloudSaveManager.Instance.SaveSelectedShipAsync(shipId);
+            }
 
             var ship = GetSelectedShip();
             OnShipSelected?.Invoke(ship);
