@@ -122,4 +122,15 @@ public class ScoreManager : MonoBehaviour
   {
     highScore = PlayerPrefs.GetInt(HIGH_SCORE_KEY, 0);
   }
+
+  /// <summary>
+  /// Reinicia el récord histórico a 0 tanto en memoria como en PlayerPrefs.
+  /// </summary>
+  public void ResetHighScore()
+  {
+    highScore = 0;
+    PlayerPrefs.DeleteKey(HIGH_SCORE_KEY);
+    PlayerPrefs.Save();
+    OnHighScoreChanged?.Invoke(highScore);
+  }
 }

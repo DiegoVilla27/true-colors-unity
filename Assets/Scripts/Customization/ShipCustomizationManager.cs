@@ -20,7 +20,7 @@ namespace TrueColors.Customization
                 if (_instance == null)
                 {
                     _instance = FindAnyObjectByType<ShipCustomizationManager>();
-                    if (_instance == null)
+                    if (_instance == null && Application.isPlaying)
                     {
                         GameObject go = new GameObject("[ShipCustomizationManager]");
                         _instance = go.AddComponent<ShipCustomizationManager>();
@@ -67,7 +67,7 @@ namespace TrueColors.Customization
             }
 
             _instance = this;
-            if (transform.parent == null && GetComponent<Canvas>() == null)
+            if (Application.isPlaying && transform.parent == null && GetComponent<Canvas>() == null)
             {
                 DontDestroyOnLoad(gameObject);
             }
@@ -101,17 +101,12 @@ namespace TrueColors.Customization
         {
             if (string.IsNullOrEmpty(shipId)) return true;
 
-#if UNITY_EDITOR
-            // En el Editor de Unity, permitir siempre probar cualquier nave sin restricciones de saldo
-            return true;
-#else
             var ship = Catalog != null ? Catalog.GetShipById(shipId) : null;
             if (ship == null) return true;
 
             if (ship.isDefaultUnlocked) return true;
 
             return _isPackPurchased;
-#endif
         }
 
         /// <summary>

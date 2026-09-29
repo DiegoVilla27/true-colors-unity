@@ -54,6 +54,17 @@ namespace TrueColors.UI
         void Awake()
         {
             WireButtons();
+
+            if (feedbackText != null)
+            {
+                var fbRect = feedbackText.GetComponent<RectTransform>();
+                if (fbRect != null)
+                {
+                    fbRect.anchoredPosition = new Vector2(0f, -270f);
+                    fbRect.sizeDelta = new Vector2(750f, 40f);
+                }
+                feedbackText.transform.SetAsLastSibling();
+            }
         }
 
         void OnEnable()
@@ -310,81 +321,94 @@ namespace TrueColors.UI
                 pageIndicatorText.text = $"{_currentIndex + 1} / {catalog.ships.Count}";
             }
 
-            // 3. Estado de Desbloqueo y Equipamiento
-            bool isUnlocked = manager.IsShipUnlocked(ship.id);
+            // 3. Estado de Desbloqueo, Equipamiento y Botones de Acción
             bool isEquipped = (manager.SelectedShipId == ship.id);
+            bool packPurchased = manager.IsPackPurchased;
 
-            if (equipButton != null)
+            if (packPurchased)
             {
-                if (equipButtonBg != null)
+                // Si tiene el pack comprado:
+                // - NO sale el botón de Buy Pack
+                if (buyPackButton != null)
                 {
-                    equipButtonBg.type = Image.Type.Simple;
-                    if (btnInactiveSprite != null) equipButtonBg.sprite = btnInactiveSprite;
+                    buyPackButton.gameObject.SetActive(false);
                 }
 
-                if (isEquipped)
+                // - Sale el botón de Equipar / Equipada
+                if (equipButton != null)
                 {
-                    equipButton.interactable = false;
-                    if (equipButtonText != null)
+                    equipButton.gameObject.SetActive(true);
+
+                    var equipRect = equipButton.GetComponent<RectTransform>();
+                    if (equipRect != null)
                     {
-                        equipButtonText.text = "EQUIPPED";
-                        equipButtonText.color = new Color(1f, 0.85f, 0.2f, 1f);
+                        equipRect.anchoredPosition = new Vector2(0f, -145f);
                     }
-                    if (equipButtonBg != null) equipButtonBg.color = Color.white;
-                }
-                else if (isUnlocked)
-                {
-                    equipButton.interactable = true;
-                    if (equipButtonText != null)
+
+                    if (equipButtonBg != null)
                     {
-                        equipButtonText.text = "EQUIP";
-                        equipButtonText.color = Color.white;
+                        equipButtonBg.type = Image.Type.Simple;
+                        if (btnInactiveSprite != null) equipButtonBg.sprite = btnInactiveSprite;
+                        equipButtonBg.color = Color.white;
                     }
-                    if (equipButtonBg != null) equipButtonBg.color = Color.white;
-                }
-                else
-                {
-                    equipButton.interactable = false;
-                    if (equipButtonText != null)
+
+                    if (isEquipped)
                     {
-                        equipButtonText.text = "LOCKED";
-                        equipButtonText.color = new Color(0.7f, 0.7f, 0.7f, 0.8f);
+                        // Si la nave está equipada: botón dirá EQUIPPED (amarillo) y disabled
+                        equipButton.interactable = false;
+                        if (equipButtonText != null)
+                        {
+                            equipButtonText.text = "EQUIPPED";
+                            equipButtonText.color = new Color(1f, 0.85f, 0.2f, 1f);
+                        }
                     }
-                    if (equipButtonBg != null) equipButtonBg.color = new Color(0.6f, 0.6f, 0.6f, 0.7f);
+                    else
+                    {
+                        // Si la nave no está equipada: botón dirá EQUIP (blanco) y habilitado
+                        equipButton.interactable = true;
+                        if (equipButtonText != null)
+                        {
+                            equipButtonText.text = "EQUIP";
+                            equipButtonText.color = Color.white;
+                        }
+                    }
                 }
             }
-
-            // 4. Botón de Compra del Paquete
-            bool packPurchased = manager.IsPackPurchased;
-            if (buyPackButton != null)
+            else
             {
-                var buyImg = buyPackButton.GetComponent<Image>();
-                if (buyImg != null)
+                // Si NO tiene el pack comprado:
+                // - El botón de equipar/equipped NO sale
+                if (equipButton != null)
                 {
-                    buyImg.type = Image.Type.Simple;
-                    if (btnInactiveSprite != null) buyImg.sprite = btnInactiveSprite;
+                    equipButton.gameObject.SetActive(false);
                 }
 
-                if (packPurchased)
+                // - Sale el botón de Buy Pack: 10,000 centrado perfectamente en el espacio disponible (-145f)
+                if (buyPackButton != null)
                 {
-                    buyPackButton.interactable = false;
-                    if (buyPackText != null)
-                    {
-                        buyPackText.text = "PACK OWNED";
-                        buyPackText.color = new Color(0.7f, 0.7f, 0.7f, 0.8f);
-                    }
-                    if (buyImg != null) buyImg.color = new Color(0.6f, 0.6f, 0.6f, 0.7f);
-                }
-                else
-                {
+                    buyPackButton.gameObject.SetActive(true);
                     buyPackButton.interactable = true;
+
+                    var buyRect = buyPackButton.GetComponent<RectTransform>();
+                    if (buyRect != null)
+                    {
+                        buyRect.anchoredPosition = new Vector2(0f, -145f);
+                    }
+
+                    var buyImg = buyPackButton.GetComponent<Image>();
+                    if (buyImg != null)
+                    {
+                        buyImg.type = Image.Type.Simple;
+                        if (btnInactiveSprite != null) buyImg.sprite = btnInactiveSprite;
+                        buyImg.color = Color.white;
+                    }
+
                     int price = catalog.packPrice;
                     if (buyPackText != null)
                     {
                         buyPackText.text = $"BUY PACK: {price:N0}";
                         buyPackText.color = Color.white;
                     }
-                    if (buyImg != null) buyImg.color = Color.white;
                 }
             }
 
@@ -421,6 +445,14 @@ namespace TrueColors.UI
         private void ShowFeedback(string message, Color color)
         {
             if (feedbackText == null) return;
+
+            var fbRect = feedbackText.GetComponent<RectTransform>();
+            if (fbRect != null)
+            {
+                fbRect.anchoredPosition = new Vector2(0f, -270f);
+                fbRect.sizeDelta = new Vector2(750f, 40f);
+            }
+            feedbackText.transform.SetAsLastSibling();
 
             if (_feedbackCoroutine != null) StopCoroutine(_feedbackCoroutine);
             _feedbackCoroutine = StartCoroutine(FeedbackRoutine(message, color));

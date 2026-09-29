@@ -6,6 +6,7 @@ using Unity.Services.Core;
 using Unity.Services.Authentication;
 using Unity.Services.CloudSave;
 using Unity.Services.CloudSave.Models;
+using TrueColors.Customization;
 
 namespace TrueColors.CloudSave
 {
@@ -26,7 +27,7 @@ namespace TrueColors.CloudSave
                 if (_instance == null)
                 {
                     _instance = FindAnyObjectByType<CloudSaveManager>();
-                    if (_instance == null)
+                    if (_instance == null && Application.isPlaying)
                     {
                         GameObject go = new GameObject("[CloudSaveManager]");
                         _instance = go.AddComponent<CloudSaveManager>();
@@ -64,7 +65,7 @@ namespace TrueColors.CloudSave
                 return;
             }
             _instance = this;
-            if (transform.parent == null)
+            if (Application.isPlaying && transform.parent == null)
             {
                 DontDestroyOnLoad(gameObject);
             }
@@ -335,6 +336,22 @@ namespace TrueColors.CloudSave
                 { KEY_TOTAL_ROCKS, rocks }
             };
             await SendSaveRequestAsync(dict);
+        }
+
+        /// <summary>
+        /// Sobrescribe todos los datos en la nube con valores en 0 (0 rocas, pack bloqueado, nave classic).
+        /// </summary>
+        public async Task ResetAllCloudDataAsync()
+        {
+            var dict = new Dictionary<string, object>
+            {
+                { KEY_PACK_PURCHASED, false },
+                { KEY_TOTAL_ROCKS, 0 },
+                { KEY_SELECTED_SHIP, "ship_classic" },
+                { KEY_HIGH_SCORE, 0 }
+            };
+            await SendSaveRequestAsync(dict);
+            Debug.Log("<color=#55FF55><b>[CloudSave]</b></color> Nube sobrescrita con éxito: 0 rocas, paquete bloqueado.");
         }
 
         private async Task SendSaveRequestAsync(Dictionary<string, object> data)

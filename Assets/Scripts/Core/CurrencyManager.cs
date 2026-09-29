@@ -16,7 +16,7 @@ public class CurrencyManager : MonoBehaviour
       if (_instance == null)
       {
         _instance = FindAnyObjectByType<CurrencyManager>();
-        if (_instance == null)
+        if (_instance == null && Application.isPlaying)
         {
           GameObject go = new GameObject("[CurrencyManager]");
           _instance = go.AddComponent<CurrencyManager>();
@@ -50,7 +50,7 @@ public class CurrencyManager : MonoBehaviour
       return;
     }
     _instance = this;
-    if (transform.parent == null && GetComponent<Canvas>() == null)
+    if (Application.isPlaying && transform.parent == null && GetComponent<Canvas>() == null)
     {
       DontDestroyOnLoad(gameObject);
     }

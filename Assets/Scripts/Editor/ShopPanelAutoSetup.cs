@@ -500,21 +500,21 @@ namespace TrueColors.EditorTools
                 thumbImages.Add(tiImg);
             }
 
-            // 4. Botón Equipar (Y: -50, Tamaño estándar ShopPanel: 450 x 150)
-            GameObject btnEquipObj = CreateShopRowButton("BtnEquip", shipsContent.transform, -50f, btnEmptySprite, "EQUIP", fontAsset, 450f, 150f, 40f);
+            // 4. Botón Equipar (Y: -145, Tamaño estándar ShopPanel: 450 x 150)
+            GameObject btnEquipObj = CreateShopRowButton("BtnEquip", shipsContent.transform, -145f, btnEmptySprite, "EQUIP", fontAsset, 450f, 150f, 40f);
             var btnEquipComp = btnEquipObj.GetComponent<Button>();
             var btnEquipImg = btnEquipObj.GetComponent<Image>();
             var equipLabelTMP = btnEquipObj.GetComponentInChildren<TextMeshProUGUI>();
 
-            // 5. Texto de Feedback (Y: -140)
+            // 5. Texto de Feedback (Y: -270, centrado entre el botón de acción a -145 y el botón volver a -395)
             GameObject feedbackObj = new GameObject("FeedbackText", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
             feedbackObj.transform.SetParent(shipsContent.transform, false);
             var fbRect = feedbackObj.GetComponent<RectTransform>();
             fbRect.anchorMin = new Vector2(0.5f, 0.5f);
             fbRect.anchorMax = new Vector2(0.5f, 0.5f);
             fbRect.pivot = new Vector2(0.5f, 0.5f);
-            fbRect.anchoredPosition = new Vector2(0f, -140f);
-            fbRect.sizeDelta = new Vector2(750f, 25f);
+            fbRect.anchoredPosition = new Vector2(0f, -270f);
+            fbRect.sizeDelta = new Vector2(750f, 40f);
 
             var fbTMP = feedbackObj.GetComponent<TextMeshProUGUI>();
             fbTMP.text = "";
@@ -525,14 +525,17 @@ namespace TrueColors.EditorTools
             fbTMP.raycastTarget = false;
             feedbackObj.SetActive(false);
 
-            // 6. Botón de Compra del Paquete (Y: -225, Tamaño estándar ShopPanel: 450 x 150)
-            GameObject btnBuyPackObj = CreateShopRowButton("BtnBuyPack", shipsContent.transform, -225f, btnEmptySprite, "BUY PACK: 10,000", fontAsset, 450f, 150f, 32f);
+            // 6. Botón de Compra del Paquete (Y: -145, Tamaño estándar ShopPanel: 450 x 150)
+            GameObject btnBuyPackObj = CreateShopRowButton("BtnBuyPack", shipsContent.transform, -145f, btnEmptySprite, "BUY PACK: 10,000", fontAsset, 450f, 150f, 32f);
             var btnBuyPackComp = btnBuyPackObj.GetComponent<Button>();
             var buyPackLabelTMP = btnBuyPackObj.GetComponentInChildren<TextMeshProUGUI>();
 
             // 7. Botón Volver / Cerrar (Y: -395, Tamaño estándar botón de icono ShopPanel: 150 x 150)
             GameObject btnBackObj = CreateIconButton("BtnBack", shipsContent.transform, new Vector2(0f, -395f), 150f, btnIconSprite, menuSprite, 80f);
             var btnBackComp = btnBackObj.GetComponent<Button>();
+
+            // Asegurar que FeedbackText quede encima de cualquier botón
+            feedbackObj.transform.SetAsLastSibling();
 
             // Footer (940 x 35, Y: -595)
             GameObject shipsFooter = new GameObject("Footer", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
